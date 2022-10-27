@@ -1,3 +1,11 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:ee839792e8ce04ab0060bb3459782221c3dd427519edab09e40164b1ee7d38c1
-size 308
+project(tutorial-pioneer-visp)
+
+cmake_minimum_required(VERSION 3.0)
+
+find_package(VISP REQUIRED)
+
+include_directories(${VISP_INCLUDE_DIRS})
+
+add_executable(tutorial-visp-pioneer-visual-servo tutorial-visp-pioneer-visual-servo.cpp)
+target_link_libraries(tutorial-visp-pioneer-visual-servo ${VISP_LIBRARIES})
+

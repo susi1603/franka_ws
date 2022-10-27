@@ -1,3 +1,11 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:3686b8dfef2c29bac8704faac5e04dab638ce6549f7d03decc830339ba7423fd
-size 277
+project(tutorial-ros-grabber)
+
+cmake_minimum_required(VERSION 3.0)
+
+find_package(visp_ros REQUIRED)
+
+include_directories(${visp_ros_INCLUDE_DIRS})
+
+add_executable(tutorial-ros-grabber tutorial-ros-grabber.cpp)
+target_link_libraries(tutorial-ros-grabber ${visp_ros_LIBRARIES})
+

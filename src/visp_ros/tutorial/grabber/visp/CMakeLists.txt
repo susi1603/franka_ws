@@ -1,3 +1,14 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:795094649cd4beac93b4e0c1e526527d1fec77a3db64bfb4cb3934edfff6ce76
-size 427
+project(tutorial-visp-grabber)
+
+cmake_minimum_required(VERSION 3.0)
+
+find_package(VISP REQUIRED)
+
+include_directories(${VISP_INCLUDE_DIRS})
+
+add_executable(tutorial-visp-grabber-1394 tutorial-visp-grabber-1394.cpp)
+target_link_libraries(tutorial-visp-grabber-1394 ${VISP_LIBRARIES})
+
+add_executable(tutorial-visp-grabber-v4l2 tutorial-visp-grabber-v4l2.cpp)
+target_link_libraries(tutorial-visp-grabber-v4l2 ${VISP_LIBRARIES})
+
