@@ -193,15 +193,15 @@ main( int argc, char **argv )
     {
       sim_time = robot.getCoppeliasimSimulationTime();
       tf::StampedTransform transform;
-      try{
-        listener.lookupTransform("/myworld", "/calib_tool_ee",
-                                 ros::Time(0), transform);
-      }
-      catch (tf::TransformException &ex) {
-        ROS_ERROR("%s",ex.what());
-        ros::Duration(1.0).sleep();
-        continue;
-      }
+      // try{
+      //   listener.lookupTransform("/myworld", "/calib_tool_ee",
+      //                            ros::Time(0), transform);
+      // }
+      // catch (tf::TransformException &ex) {
+      //   ROS_ERROR("%s",ex.what());
+      //   ros::Duration(1.0).sleep();
+      //   continue;
+      // }
         // Update Matrixes
       vpColVector ee;
       robot.getPosition( vpRobot::END_EFFECTOR_FRAME, ee);
