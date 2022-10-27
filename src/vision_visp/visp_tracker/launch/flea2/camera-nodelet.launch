@@ -1,3 +1,34 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:45c791950dcb4b391f36e1c702807d48c0ebb3c659051d3413cab65d30887103
-size 1205
+<launch>
+  <group ns="flea2" >
+    <!-- nodelet manager process -->
+    <node pkg="nodelet" type="nodelet" name="camera_nodelet_manager"
+          args="manager" />
+
+    <!-- camera driver nodelet -->
+    <node pkg="nodelet" type="nodelet" name="camera1394_nodelet"
+          args="load camera1394/driver camera_nodelet_manager">
+      <param
+	 name="camera_info_url"
+	 value="file://$(find visp_tracker)/launch/$(env ROBOT)/calibration/flea2.yaml" />
+
+      <rosparam
+	 file="$(find visp_tracker)/launch/$(env ROBOT)/flea2.yaml" />
+    </node>
+
+    <!-- Bayer color decoding -->
+    <node pkg="nodelet" type="nodelet" name="image_proc_debayer"
+          args="load image_proc/debayer camera_nodelet_manager">
+      <remap from="image_color" to="camera/image_color" />
+      <remap from="image_mono" to="camera/image_mono" />
+      <remap from="image_raw" to="camera/image_raw" />
+    </node>
+    
+    <!-- mono rectification -->
+    <node pkg="nodelet" type="nodelet" name="image_proc_rect"
+          args="load image_proc/rectify camera_nodelet_manager">
+      <remap from="image_mono" to="camera/image_mono" />
+      <remap from="image_rect" to="camera/image_rect" />
+    </node>
+
+  </group>
+</launch>

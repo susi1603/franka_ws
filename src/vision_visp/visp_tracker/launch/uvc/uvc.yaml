@@ -1,3 +1,5 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:4352451608d0a1ff5a41c648bb377778a8cb2d7116bcbdb02f5f27a0046f3f42
-size 65
+device: /dev/video0
+fps: 30
+width: 640
+height: 480
+frame_id: uvc

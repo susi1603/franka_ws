@@ -1,3 +1,16 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:da840cea655ad22d778f1eeaf88964f0878566a3caee5e8d02d25673d964ad30
-size 358
+# Blender v2.92.0 OBJ File: ''
+# www.blender.org
+mtllib Tag_00010.mtl
+o Plane
+v -1.000000 0.000000 1.000000
+v 1.000000 0.000000 1.000000
+v -1.000000 0.000000 -1.000000
+v 1.000000 0.000000 -1.000000
+vt 0.000000 0.000000
+vt 1.000000 0.000000
+vt 1.000000 1.000000
+vt 0.000000 1.000000
+vn 0.0000 1.0000 0.0000
+usemtl Material.001
+s off
+f 1/1/1 2/2/1 4/3/1 3/4/1

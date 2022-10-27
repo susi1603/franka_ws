@@ -1,3 +1,35 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:f9c0d3ed24042d264bd6d31de5c12b2ccf0c598ce10fdf339d6bb0c4de44c355
-size 1113
+#ifndef VISP_TRACKER_FILE_HH
+# define VISP_TRACKER_FILE_HH
+# include <string>
+
+# include "names.hh"
+
+std::string
+getInitFileFromModelName(const std::string& modelName,
+                         const std::string& defaultPath);
+
+std::string
+getHelpImageFileFromModelName (const std::string& modelName,
+                               const std::string& defaultPath);
+
+std::string
+getConfigurationFileFromModelName(const std::string& modelName,
+                                  const std::string& configurationName,
+                                  const std::string& defaultPath);
+
+std::string
+getModelFileFromModelName(const std::string& modelName,
+                          const std::string& defaultPath);
+
+std::string
+getConfigurationFileFromModelName(const std::string& modelName,
+                                  const std::string& defaultPath);
+
+std::string
+getInitialPoseFileFromModelName (const std::string& modelName,
+                                 const std::string& defaultPath);
+
+bool
+makeModelFile(boost::filesystem::ofstream& stream, std::string& fullModelPath);
+
+#endif //! VISP_TRACKER_FILE_HH

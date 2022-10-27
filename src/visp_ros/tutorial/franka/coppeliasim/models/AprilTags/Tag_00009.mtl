@@ -1,3 +1,13 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:98291e85bcbedd3b9ba250137ac245aaee8590f1127a95f86e9e786e685a1def
-size 285
+# Blender MTL File: 'None'
+# Material Count: 1
+
+newmtl Material.001
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd /home/oliva/Pictures/tag36_11_00009_10cm.png

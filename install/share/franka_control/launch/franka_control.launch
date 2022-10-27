@@ -1,3 +1,19 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:aab562b89987dced47f63fe14921411def920befc9c40e24f127e3395a1773f5
-size 832
+<?xml version="1.0" ?>
+<launch>
+  <arg name="robot_ip" />
+  <arg name="load_gripper" default="true" />
+  <group ns="panda">
+    <include file="$(find franka_gripper)/launch/franka_gripper.launch" if="$(arg load_gripper)">
+      <arg name="robot_ip" value="$(arg robot_ip)" />
+    </include>
+
+    <node name="franka_control" pkg="franka_control" type="franka_control_node" output="screen" required="true">
+      <rosparam command="load" file="$(find franka_control)/config/franka_control_node.yaml" />
+      <param name="robot_ip" value="$(arg robot_ip)" />
+    </node>
+
+    <rosparam command="load" file="$(find franka_control)/config/default_controllers.yaml" />
+    <node name="state_controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="franka_state_controller"/>
+ </group>
+
+</launch>

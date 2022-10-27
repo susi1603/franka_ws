@@ -1,3 +1,5 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:95337d0ec096dabcc870ddba1baa3b34801032077dfc37bef0ac4ee958444161
-size 118
+publish_rate: 30  # [Hz]
+default_speed: 0.1  # [m/s]
+default_grasp_epsilon:
+  inner: 0.005 # [m]
+  outer: 0.005 # [m]

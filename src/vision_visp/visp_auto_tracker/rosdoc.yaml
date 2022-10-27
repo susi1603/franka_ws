@@ -1,3 +1,4 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:0973f186aaea65b7010803837f4b0874347074fb96bdee46842dfa6a3873bc1b
-size 106
+ - builder: doxygen
+   name: C++ API
+   output_dir: c++
+   file_patterns: '*.c *.cpp *.h *.cc *.hh *.dox'

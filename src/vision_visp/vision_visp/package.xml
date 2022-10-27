@@ -1,3 +1,24 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:8d0129ef5bc63d0dfa918881d046155cd8b84fbd2a86ab99c982e348e1cc0e09
-size 768
+<package>
+  <name>vision_visp</name>
+  <version>0.13.0</version>
+  <description>
+    Virtual package providing ViSP related packages.
+  </description>
+  <maintainer email="fabien.spindler@inria.fr">Fabien Spindler</maintainer>
+  <author email="thomas.moulard@gmail.com">Thomas Moulard</author>
+  <license>GPLv2</license>
+  <url>http://wiki.ros.org/vision_visp</url>
+  <url type="repository">git://github.com/lagadic/vision_visp.git</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <run_depend>visp_auto_tracker</run_depend>
+  <run_depend>visp_bridge</run_depend>
+  <run_depend>visp_camera_calibration</run_depend>
+  <run_depend>visp_hand2eye_calibration</run_depend>
+  <run_depend>visp_tracker</run_depend>
+
+  <export>
+    <metapackage/>
+  </export>
+</package>

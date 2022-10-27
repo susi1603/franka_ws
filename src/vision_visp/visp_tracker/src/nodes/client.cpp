@@ -1,3 +1,21 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:27631d8b864e976b2eca9dea57444d75c7ac98666a6206bac59bf8ab004a2785
-size 392
+#include <stdexcept>
+
+#include <ros/ros.h>
+#include <nodelet/loader.h>
+
+
+int main(int argc, char **argv)
+{
+  ros::init(argc, argv, "tracker_mbt_client");
+
+  nodelet::Loader nodelet;
+  nodelet::M_string remap(ros::names::getRemappings());
+  nodelet::V_string nargv;
+
+  nodelet.load
+      (ros::this_node::getName (), "visp_tracker/TrackerClient", remap, nargv);
+
+  ros::spin();
+
+  return 0;
+}

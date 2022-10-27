@@ -1,3 +1,19 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:18d1de16a427084cc50a21f264a4a4214aa6db607a89bd5039a672b69fe240dc
-size 388
+#ifndef __DMDETECTOR_H__
+#define __DMDETECTOR_H__
+#include "cv.h"
+
+#include <vector>
+#include <utility>
+#include <string>
+
+#include "detectors/detector_base.h"
+namespace detectors{
+namespace datamatrix{
+  class Detector : public DetectorBase{
+  public:
+    Detector();
+    bool detect(cv::Mat& image, int timeout=1000, unsigned int offsetx = 0, unsigned int offsety = 0);
+  };
+}
+}
+#endif

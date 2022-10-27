@@ -1,3 +1,14 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:99e8a558892c813c37c0c4559362c8902073b7bda84e8f0c4b36d0b3f8b10322
-size 426
+# generated from catkin/cmake/template/pkgConfig-version.cmake.in
+set(PACKAGE_VERSION "0.8.0")
+
+set(PACKAGE_VERSION_EXACT False)
+set(PACKAGE_VERSION_COMPATIBLE False)
+
+if("${PACKAGE_FIND_VERSION}" VERSION_EQUAL "${PACKAGE_VERSION}")
+  set(PACKAGE_VERSION_EXACT True)
+  set(PACKAGE_VERSION_COMPATIBLE True)
+endif()
+
+if("${PACKAGE_FIND_VERSION}" VERSION_LESS "${PACKAGE_VERSION}")
+  set(PACKAGE_VERSION_COMPATIBLE True)
+endif()

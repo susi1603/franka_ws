@@ -1,3 +1,5 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:d9ddc99ac72ae9d78599b5d3f2dbc68020b70b1ba4057d91444d388790386cac
-size 270
+<library path="lib/libvisp_ros_bebop2_visual_servo_nodelet">
+  <class name="visp_ros_bebop2_visual_servo_nodelet" type="bebopVSNodelet" base_class_type="nodelet::Nodelet">
+    <description>Nodelet implementation of visual_servo_node.</description>
+  </class>
+</library>

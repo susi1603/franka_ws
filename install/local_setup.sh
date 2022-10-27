@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:a7f02161d67b42fedcb52fe6c2c55185833080a8f9491f7f56c116def264117d
-size 365
+#!/usr/bin/env sh
+# generated from catkin/cmake/template/local_setup.sh.in
+
+# since this file is sourced either use the provided _CATKIN_SETUP_DIR
+# or fall back to the destination set at configure time
+: ${_CATKIN_SETUP_DIR:=/home/airocs/ros/franka_ws/install}
+CATKIN_SETUP_UTIL_ARGS="--extend --local"
+. "$_CATKIN_SETUP_DIR/setup.sh"
+unset CATKIN_SETUP_UTIL_ARGS

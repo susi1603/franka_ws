@@ -1,3 +1,4 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:35f9848e96d72e203718bfbc374bfce88026372da6957af40885d9d41135bb97
-size 110
+cmake_minimum_required(VERSION 3.0.0)
+project(vision_visp)
+find_package(catkin REQUIRED)
+catkin_metapackage()

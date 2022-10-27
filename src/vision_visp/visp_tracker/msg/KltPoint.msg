@@ -1,3 +1,5 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:f49f2f9db9b5f75d207d207d18961014c915a6501f8716d41a44d7779f918a2d
-size 131
+# KLT point position.
+
+float64 i      # i position in the image
+float64 j      # j position in the image
+int32   id     # Point id

@@ -1,3 +1,2 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:2504942468b5eb5b372865cc44fbbbdb2676348c2d8b1436244a34a42ae37138
-size 497
+set(franka_msgs_MESSAGE_FILES "msg/Errors.msg;msg/FrankaState.msg;msg/ErrorRecoveryAction.msg;msg/ErrorRecoveryActionGoal.msg;msg/ErrorRecoveryActionResult.msg;msg/ErrorRecoveryActionFeedback.msg;msg/ErrorRecoveryGoal.msg;msg/ErrorRecoveryResult.msg;msg/ErrorRecoveryFeedback.msg")
+set(franka_msgs_SERVICE_FILES "srv/SetCartesianImpedance.srv;srv/SetEEFrame.srv;srv/SetForceTorqueCollisionBehavior.srv;srv/SetFullCollisionBehavior.srv;srv/SetJointImpedance.srv;srv/SetKFrame.srv;srv/SetLoad.srv")

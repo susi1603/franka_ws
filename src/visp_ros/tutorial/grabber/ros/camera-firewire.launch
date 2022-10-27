@@ -1,3 +1,7 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:f4ec23f4b3916459ab78f35076467a2a8d959876d786a3e320a698e0a0fc2e83
-size 320
+<!-- -*- xml -*- -->
+<launch>		
+  <!-- Launch the firewire camera acquisition node -->
+  <node pkg="camera1394" type="camera1394_node" name="my_camera1394_node" args="_video_mode:=640x480_rgb8" >
+    <param name="camera_info_url" value="package://visp_ros/tutorial/grabber/ros/cam_parameters.yml" />
+  </node>
+</launch>

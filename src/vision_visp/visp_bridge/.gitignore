@@ -1,3 +1,12 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:210cfb2206a91575958a641cbeda870038d4f662d506cadd6229eb8fab944d81
-size 108
+*.pyc
+*.*~
+CMakeCache.txt
+CMakeFiles
+bin
+build
+lib
+*.dox
+*_gen
+.cproject
+.project
+.pydevproject

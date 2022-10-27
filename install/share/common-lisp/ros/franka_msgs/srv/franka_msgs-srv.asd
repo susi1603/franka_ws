@@ -1,3 +1,21 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:fa9a372bd7d8f72e030e7c7086f0ace846d96d27d7914a55721d0e90c29480ec
-size 1132
+
+(cl:in-package :asdf)
+
+(defsystem "franka_msgs-srv"
+  :depends-on (:roslisp-msg-protocol :roslisp-utils )
+  :components ((:file "_package")
+    (:file "SetCartesianImpedance" :depends-on ("_package_SetCartesianImpedance"))
+    (:file "_package_SetCartesianImpedance" :depends-on ("_package"))
+    (:file "SetEEFrame" :depends-on ("_package_SetEEFrame"))
+    (:file "_package_SetEEFrame" :depends-on ("_package"))
+    (:file "SetForceTorqueCollisionBehavior" :depends-on ("_package_SetForceTorqueCollisionBehavior"))
+    (:file "_package_SetForceTorqueCollisionBehavior" :depends-on ("_package"))
+    (:file "SetFullCollisionBehavior" :depends-on ("_package_SetFullCollisionBehavior"))
+    (:file "_package_SetFullCollisionBehavior" :depends-on ("_package"))
+    (:file "SetJointImpedance" :depends-on ("_package_SetJointImpedance"))
+    (:file "_package_SetJointImpedance" :depends-on ("_package"))
+    (:file "SetKFrame" :depends-on ("_package_SetKFrame"))
+    (:file "_package_SetKFrame" :depends-on ("_package"))
+    (:file "SetLoad" :depends-on ("_package_SetLoad"))
+    (:file "_package_SetLoad" :depends-on ("_package"))
+  ))

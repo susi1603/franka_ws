@@ -1,3 +1,8 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:90e1a0bc0379e3a78196c327af46918ef7165624c28c240d43118283de2496d3
-size 151
+(cl:in-package franka_msgs-srv)
+(cl:export '(EE_T_K-VAL
+          EE_T_K
+          SUCCESS-VAL
+          SUCCESS
+          ERROR-VAL
+          ERROR
+))

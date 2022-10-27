@@ -1,3 +1,5 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:8a32ba8732790a7ce5982a25bf8dc73269d705b82e9b3fbf86f96c903ccf6e20
-size 62
+float64[6] cartesian_stiffness
+---
+bool success
+string error
+

@@ -1,3 +1,17 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:bf7afa1ca08655f8b6f3530900d0d55b0c617f9124f6d141bbd5ffacfa53aacb
-size 287
+#include "detector_base.h"
+
+namespace detectors{
+std::vector<std::pair<cv::Point,cv::Point> >& DetectorBase:: get_lines(){
+  return lines_;
+}
+
+std::string& DetectorBase:: get_message(){
+  return message_;
+}
+
+std::vector<cv::Point>& DetectorBase:: get_polygon(){
+  return polygon_;
+}
+}
+
+

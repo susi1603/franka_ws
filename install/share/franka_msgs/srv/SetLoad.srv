@@ -1,3 +1,7 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:b474ff320b4d55b714b1cc04299e75736961bac7099fec2ab9681640784dd165
-size 95
+float64 mass
+float64[3] F_x_center_load
+float64[9] load_inertia
+---
+bool success
+string error
+

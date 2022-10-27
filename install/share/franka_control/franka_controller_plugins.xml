@@ -1,3 +1,5 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:459e731d58af3a9d08432de0535d54ac243cf01ece8df85cec2928138aef0ff1
-size 308
+<library path="lib/libfranka_state_controller">
+  <class name="franka_control/FrankaStateController" type="franka_control::FrankaStateController" base_class_type="controller_interface::ControllerBase">
+    <description>A controller that publishes the complete robot state</description>
+  </class>
+</library>

@@ -1,3 +1,23 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:0c4b58b64185a45f8e6db0ea3f17a59cb9786024f1f7f86d34a6be1759d6265a
-size 632
+V1
+# 3D Points
+8                  # Number of points
+-0.0765  -0.0765	0.000  # Point 0: X Y Z
+ 0.0765  -0.0765	0.000
+ 0.0765   0.0765	0.000
+-0.0765   0.0765	0.000
+-0.03825 -0.03825	0.000	
+ 0.03825 -0.03825	0.000
+ 0.03825  0.03825	0.000
+-0.03825  0.03825 0.000  # Point 7
+# 3D Lines
+0                  # Number of lines
+# Faces from 3D lines
+0                  # Number of faces
+# Faces from 3D points
+2                  # Number of faces
+4 0 1 2 3          # Face 0: [number of points] [index of the 3D points]...
+4 4 5 6 7
+# 3D cylinders
+0                  # Number of cylinders
+# 3D circles
+0                  # Number of circles

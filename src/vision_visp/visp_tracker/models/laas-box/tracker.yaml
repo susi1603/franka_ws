@@ -1,3 +1,10 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:cd4a3b55f1dc79b92cb9a2aba7639fde15b789e6115a0b020cc1fea9da0aa987
-size 117
+{
+mask_size: 3,
+mu1: 0.5,
+mu2: 0.5,
+n_mask: 180,
+ntotal_sample: 800,
+range: 10,
+sample_step: 3.,
+threshold: 2000.0
+}

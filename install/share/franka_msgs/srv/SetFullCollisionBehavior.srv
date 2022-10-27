@@ -1,3 +1,12 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:e50a6a720844b538483bf8fe9e1c9aef505576d6d16712f7b7f22c735ec26c3e
-size 391
+float64[7] lower_torque_thresholds_acceleration
+float64[7] upper_torque_thresholds_acceleration
+float64[7] lower_torque_thresholds_nominal
+float64[7] upper_torque_thresholds_nominal
+float64[6] lower_force_thresholds_acceleration
+float64[6] upper_force_thresholds_acceleration
+float64[6] lower_force_thresholds_nominal
+float64[6] upper_force_thresholds_nominal
+---
+bool success
+string error
+

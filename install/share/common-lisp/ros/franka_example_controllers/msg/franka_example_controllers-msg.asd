@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:45e4510054af96596b3cc51647f68a92c33402a693921157343231e5981646ae
-size 313
+
+(cl:in-package :asdf)
+
+(defsystem "franka_example_controllers-msg"
+  :depends-on (:roslisp-msg-protocol :roslisp-utils )
+  :components ((:file "_package")
+    (:file "JointTorqueComparison" :depends-on ("_package_JointTorqueComparison"))
+    (:file "_package_JointTorqueComparison" :depends-on ("_package"))
+  ))

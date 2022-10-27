@@ -1,3 +1,18 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:c6db3cdd9f2ee7e0be4661c1e20c2ec7e4096be584fe606d85cf08a7f96c1a12
-size 558
+#include "names.h"
+
+namespace visp_auto_tracker
+{
+  std::string camera_info_topic("camera_info");
+  std::string image_topic("image_raw");
+  std::string moving_edge_sites_topic("/moving_edge_sites");
+  std::string klt_points_topic("/klt_points");
+
+  std::string status_topic("status");
+
+  std::string object_position_topic("object_position");
+  std::string object_position_covariance_topic("object_position_covariance");
+  std::string code_message_topic("code_message");
+  std::string init_service("init");
+
+  std::string tracker_config_file("config.cfg");
+}

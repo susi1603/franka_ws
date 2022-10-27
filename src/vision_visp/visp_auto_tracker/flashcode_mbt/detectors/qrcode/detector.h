@@ -1,3 +1,22 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:d010ba5079906c90ffc7c25e268d2a995e517b26145877b9e9bd450c7c1ff4f7
-size 446
+#ifndef __QRDETECTOR_H__
+#define __QRDETECTOR_H__
+#include "cv.h"
+
+#include <vector>
+#include <utility>
+#include <string>
+#include "detectors/detector_base.h"
+#include <zbar.h>
+
+namespace detectors{
+namespace qrcode{
+  class Detector : public DetectorBase{
+  private:
+    zbar::ImageScanner scanner_;
+  public:
+    Detector();
+    bool detect(cv::Mat& image, int timeout=1000, unsigned int offsetx = 0, unsigned int offsety = 0);
+  };
+}
+}
+#endif

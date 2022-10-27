@@ -1,3 +1,5 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:8c30b8c68ca5bded490f9d45c30f0e774355d72496ca332b0a29774190a05ed7
-size 103
+guid: 00b09d01005c071b
+#video_mode:
+frame_id: camera_narrow_right
+bayer_method: ""
+bayer_pattern: grbg

@@ -1,3 +1,39 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:aa85292037301c3c9980884e4e4d2d7773e7978e0018340140b63a7c750fa102
-size 735
+//! \example tutorial-visp-grabber-v4l2.cpp
+#include <visp/vpDisplayX.h>
+#include <visp/vpImage.h>
+#include <visp/vpV4l2Grabber.h>
+
+int
+main()
+{
+#ifdef VISP_HAVE_V4L2
+  try
+  {
+    vpImage< unsigned char > I;
+
+    vpV4l2Grabber g;
+    g.open( I );
+
+    std::cout << "Image size: " << I.getWidth() << " " << I.getHeight() << std::endl;
+
+#ifdef VISP_HAVE_X11
+    vpDisplayX d( I );
+#else
+    std::cout << "No image viewer is available..." << std::endl;
+#endif
+
+    while ( 1 )
+    {
+      g.acquire( I );
+      vpDisplay::display( I );
+      vpDisplay::flush( I );
+      if ( vpDisplay::getClick( I, false ) )
+        break;
+    }
+  }
+  catch ( vpException e )
+  {
+    std::cout << "Catch an exception: " << e << std::endl;
+  }
+#endif
+}

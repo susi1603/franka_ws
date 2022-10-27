@@ -1,3 +1,11 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:ceecb9eec35a2f377dc85db2b95165a1a2727e864101a58ca9eff767f4727831
-size 108
+*.pyc
+*.*~
+bin/
+build/
+include/
+lib/
+*_gen/
+.cproject
+.project
+.pydevproject
+src/visp_hand2eye_calibration/

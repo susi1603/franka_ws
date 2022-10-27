@@ -1,3 +1,5 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:5deb59cf775cc3deb081bf404da1d5b53b47d98fd82ca719a04baa95a712b49c
-size 145
+<launch>
+  <node ns="camera" pkg="image_proc" type="image_proc" name="image_proc">
+    <param name="queue_size" value="5" />
+  </node>
+</launch>

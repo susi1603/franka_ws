@@ -1,3 +1,2 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:ea091e2a16de604a6c5bc8e925e3df0239537273a09ad51a2250776b4b53eb62
-size 149
+set(visp_ros_MESSAGE_FILES "msg/BlobTracker.msg;msg/ImagePoint.msg;msg/PoseStampedStatus.msg;msg/ProjectedPoint.msg")
+set(visp_ros_SERVICE_FILES "")

@@ -1,3 +1,32 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:97aadab8722a2634aa382d6044bf359a92975373851ac3b8f4cd8798d6f3257b
-size 416
+#VRML V2.0 utf8
+
+DEF fst_0 Group {
+children [
+
+# Object "cube"
+Shape {
+
+geometry DEF cube IndexedFaceSet {
+
+coord Coordinate { 
+point [
+-0.0765  -0.0765	0.000
+ 0.0765  -0.0765	0.000
+ 0.0765  0.0765	0.000
+-0.0765  0.0765	0.000
+-0.03825  -0.03825	0.000	
+ 0.03825  -0.03825	0.000
+ 0.03825  0.03825	0.000
+-0.03825  0.03825  	0.000 
+ ]
+}
+
+coordIndex [
+ 0,1,2,3,-1,
+ 4,5,6,7,-1,
+]}
+}
+
+
+]
+}

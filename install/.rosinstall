@@ -1,3 +1,2 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:667325c72c0625bfd700e7aa572432ffdede76558dbd57c75356dffa2d9b2607
-size 74
+- setup-file:
+    local-name: /home/airocs/ros/franka_ws/install/setup.sh

@@ -1,3 +1,7 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:152c026c946deffb6775d7323be6459a79da43cb79f0f01ff65843dadf529105
-size 147
+#include "node.h"
+
+int main(int argc,char** argv){
+  ros::init(argc, argv, "visp_auto_tracker");
+  visp_auto_tracker::Node().spin();
+  return 0;
+}
