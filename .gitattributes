@@ -1,7 +1,7 @@
 # Auto detect text files and perform LF normalization
 * text=auto
-build/** filter=lfs diff=lfs merge=lfs -text
-devel/** filter=lfs diff=lfs merge=lfs -text
-src/** filter=lfs diff=lfs merge=lfs -text
-install/** filter=lfs diff=lfs merge=lfs -text
+# build/** filter=lfs diff=lfs merge=lfs -text
+# devel/** filter=lfs diff=lfs merge=lfs -text
+# src/** filter=lfs diff=lfs merge=lfs -text
+# install/** filter=lfs diff=lfs merge=lfs -text
 # * text=auto
