@@ -28,13 +28,13 @@ double convergence_threshold_t = 0.01, convergence_threshold_tu = 0.2;
 
 void artCallback (const art_publisher::body::ConstPtr &msg)
 {
-  x_pos = msg->bodies[2].pose.position.x/1000;
-  y_pos = msg->bodies[2].pose.position.y/1000;
-  z_pos = msg->bodies[2].pose.position.z/1000;
-  x_or  = msg->bodies[2].pose.orientation.x; 
-  y_or  = msg->bodies[2].pose.orientation.y; 
-  z_or  = msg->bodies[2].pose.orientation.z; 
-  w_or  = msg->bodies[2].pose.orientation.w;
+  x_pos = msg->bodies[0].pose.position.x;
+  y_pos = msg->bodies[0].pose.position.y;
+  z_pos = msg->bodies[0].pose.position.z;
+  x_or  = msg->bodies[0].pose.orientation.x; 
+  y_or  = msg->bodies[0].pose.orientation.y; 
+  z_or  = msg->bodies[0].pose.orientation.z; 
+  w_or  = msg->bodies[0].pose.orientation.w;
 
   // std::cout << "ART x" << x_pos << std::endl;
   // std::cout << "ART y" << y_pos << std::endl;
@@ -75,24 +75,29 @@ int main(int argc, char **argv)
   ros::Subscriber sub = n.subscribe("ARTBody", 1000, artCallback);
   ros::Rate loop_rate(10);
   robot.connect("172.16.0.2");
-  std::cout << "connected " << std::endl;
+  std::cout << "Connected " << std::endl;
 
   vpColVector ee_state(6);
   robot.setRobotState( vpRobot::STATE_VELOCITY_CONTROL);
   robot.getPosition( vpRobot::END_EFFECTOR_FRAME, ee_state);
 
   vpHomogeneousMatrix eedMee;
-  vpHomogeneousMatrix eedMo(vpTranslationVector(-0.244, -0.027, 0.031), vpQuaternionVector(0.661, -0.054, 0.151, 0.733));
-// - Translation: [-0.244, -0.027, 0.031]
-// - Rotation: in Quaternion [0.661, -0.054, 0.151, 0.733]
-//             in RPY (radian) [1.444, -0.282, 0.156]
-//             in RPY (degree) [82.749, -16.160, 8.939]
+  vpHomogeneousMatrix eedMo(vpTranslationVector(-0.251, 0.046, 0.004), vpQuaternionVector(0.361, 0.891, -0.075, -0.266));
+// - Translation: [-0.251, 0.046, 0.004]
+// - Rotation: in Quaternion [0.361, 0.891, -0.075, -0.266]
+//             in RPY (radian) [-2.774, -0.433, 2.289]
+//             in RPY (degree) [-158.918, -24.791, 131.170]
+
 
   vpHomogeneousMatrix wMo(vpTranslationVector(x_pos, y_pos, z_pos), vpQuaternionVector(x_or, y_or, z_or, w_or));
   vpHomogeneousMatrix l_zeroMee(vpTranslationVector( ee_state[0], ee_state[1], ee_state[2] ), vpThetaUVector(ee_state[3], ee_state[4], ee_state[5]));
-  vpHomogeneousMatrix wMl_zero(vpTranslationVector(0.478,-0.312,0.080), vpQuaternionVector(-0.012, -0.001, 0.724, 0.690));
-  //  - Translation: [0.478, -0.312, 0.080]
-  // - Rotation: in Quaternion [-0.012, -0.001, 0.724, 0.690]
+  vpHomogeneousMatrix wMl_zero(vpTranslationVector(0.218, -0.164, 0.169), vpQuaternionVector(-0.049, -0.013, 0.722, 0.690));
+// - Translation: [0.218, -0.164, 0.169]
+// - Rotation: in Quaternion [-0.049, -0.013, 0.722, 0.690]
+//             in RPY (radian) [-0.087, 0.052, 1.615]
+//             in RPY (degree) [-4.985, 2.979, 92.533]
+
+
 
   vpHomogeneousMatrix wMee = wMl_zero * l_zeroMee;
   eedMee = eedMo * wMo.inverse() * wMee;
@@ -120,7 +125,7 @@ int main(int argc, char **argv)
     robot.getPosition( vpRobot::END_EFFECTOR_FRAME, ee);
     vpHomogeneousMatrix wMo(vpTranslationVector(x_pos, y_pos, z_pos), vpQuaternionVector(x_or, y_or, z_or, w_or));
     vpHomogeneousMatrix l_zeroMee(vpTranslationVector( ee[0], ee[1], ee[2] ), vpThetaUVector(ee[3], ee[4], ee[5]));
-    vpHomogeneousMatrix wMl_zero(vpTranslationVector(0.478,-0.312,0.080), vpQuaternionVector(-0.012, -0.001, 0.724, 0.690));
+    vpHomogeneousMatrix wMl_zero(vpTranslationVector(0.218, -0.164, 0.169), vpQuaternionVector(-0.049, -0.013, 0.722, 0.690));
     vpHomogeneousMatrix wMee = wMl_zero * l_zeroMee;
 
     // Update visual features
@@ -276,18 +281,18 @@ int main(int argc, char **argv)
     // std::cout << wMee.getRotationMatrix()[2][2] << std::endl;
 
     if (
-        x_backward<=next_world[0] && next_world[0]<=x_forward
-        && y_right<=next_world[1] && next_world[1]<=y_left
-        && z_down<=next_world[2] && next_world[2]<=z_up
+        // x_backward<=next_world[0] && next_world[0]<=x_forward
+        // && y_right<=next_world[1] && next_world[1]<=y_left
+        // && z_down<=next_world[2] && next_world[2]<=z_up
 
-        && std::fabs((rotx_Mmin*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdXMin
-        && std::fabs((rotx_Mmax*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdXMax
-        && std::fabs((roty_Mmin*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdYMin
-        // && std::fabs((roty_Mmax*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdYMax
-        && std::fabs((rotz_Mmin*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdZMin
-        && std::fabs((rotz_Mmax*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdZMax
+        // && std::fabs((rotx_Mmin*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdXMin
+        // && std::fabs((rotx_Mmax*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdXMax
+        // && std::fabs((roty_Mmin*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdYMin
+        // // && std::fabs((roty_Mmax*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdYMax
+        // && std::fabs((rotz_Mmin*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdZMin
+        // && std::fabs((rotz_Mmax*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdZMax
 
-        && !(isnan(v_c[0]))
+        !(isnan(v_c[0]))
         && !(isnan(v_c[1]))
         && !(isnan(v_c[2]))
         && !(isnan(v_c[3]))

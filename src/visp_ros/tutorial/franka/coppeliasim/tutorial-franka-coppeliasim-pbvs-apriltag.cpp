@@ -19,6 +19,8 @@
 #include <ros/ros.h>
 #include <signal.h>
 #include <tf/transform_listener.h>
+#include <opencv2/opencv.hpp>
+using namespace std;
 
 vpColVector v_c( 6);
 
@@ -87,6 +89,34 @@ int isARTNormalized(){
   else {
     return 1;
   }
+}
+
+
+void rotationMatrixToEulerAngles(vpRotationMatrix &R, double *returnArray)
+{
+ 
+    float sy = sqrt(R[0][0] * R[0][0] +  R[1][0] * R[1][0] );
+ 
+    bool singular = sy < 1e-6; // If
+ 
+    float x, y, z;
+    if (!singular)
+    {
+        x = atan2(R[2][1] ,R[2][2]);
+        y = atan2(-R[2][0], sy);
+        z = atan2(R[1][0], R[0][0]);
+    }
+    else
+    {
+        x = atan2(-R[1][2], R[1][1]);
+        y = atan2(-R[2][0], sy);
+        z = 0;
+    }
+
+    returnArray[0]=x;
+    returnArray[1]=y;
+    returnArray[2]=z;
+ 
 }
 
 int
@@ -158,8 +188,6 @@ main( int argc, char **argv )
     robot.setRobotState( vpRobot::STATE_VELOCITY_CONTROL);
     robot.getPosition( vpRobot::END_EFFECTOR_FRAME, ee_state);
 
-    std::cout << "ee_state " << ee_state.t() << std::endl;
-
     vpHomogeneousMatrix eedMee;
     vpHomogeneousMatrix eedMo(vpTranslationVector(-0.244, -0.027, 0.031), vpQuaternionVector(0.661, -0.054, 0.151, 0.733));
     vpHomogeneousMatrix wMo(vpTranslationVector(x_pos, y_pos, z_pos), vpQuaternionVector(x_or, y_or, z_or, w_or));
@@ -206,6 +234,16 @@ main( int argc, char **argv )
       vpColVector ee;
       robot.getPosition( vpRobot::END_EFFECTOR_FRAME, ee);
       std::cout << "END EFFECTOR UPDATE " << ee.t() << std::endl;
+
+      vpThetaUVector ee_tu(ee[4], ee[5], ee[6]);
+      vpRotationMatrix R(ee_tu);
+      double returnArray[3];
+      rotationMatrixToEulerAngles(R,returnArray);
+
+      cout<<"rotationMatrixToEulerAngles 1:"<< returnArray[0] << endl;
+      cout<<"rotationMatrixToEulerAngles 2:"<< returnArray[1] << endl;
+      cout<<"rotationMatrixToEulerAngles 3:"<< returnArray[3] << endl;
+
       vpHomogeneousMatrix wMo(vpTranslationVector(x_pos, y_pos, z_pos), vpQuaternionVector(x_or, y_or, z_or, w_or));
       vpHomogeneousMatrix l_zeroMee(vpTranslationVector( ee[0], ee[1], ee[2] ), vpThetaUVector(ee[3], ee[4], ee[5]));
       vpHomogeneousMatrix wMl_zero(vpTranslationVector(0.478,-0.312,0.080), vpQuaternionVector(-0.012, -0.001, 0.724, 0.690));
