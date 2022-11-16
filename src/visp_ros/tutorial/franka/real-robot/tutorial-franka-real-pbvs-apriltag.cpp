@@ -11,8 +11,10 @@
 #include <stdlib.h>
 #include <signal.h> 
 
+#define CONFIG_FILE_PATH "./src/visp_ros/tutorial/franka/real-robot/config/configFile.config"
 art_publisher::body local_pos;
 vpColVector v_c( 6);
+using namespace std;
 
 volatile sig_atomic_t flag = 0;
 double x_pos;
@@ -26,6 +28,122 @@ bool has_converged = false;
 bool stop_program  = false;
 double convergence_threshold_t = 0.01, convergence_threshold_tu = 0.2;
 
+double eedmo_t_x;
+double eedmo_t_y;
+double eedmo_t_z;
+double eedmo_r_x;
+double eedmo_r_y;
+double eedmo_r_z;
+double eedmo_r_w;
+
+double wMl_zero_t_x;
+double wMl_zero_t_y;
+double wMl_zero_t_z;
+double wMl_zero_r_x;
+double wMl_zero_r_y;
+double wMl_zero_r_z;
+double wMl_zero_r_w;
+
+void setFromConfigFile(){
+
+    std::ifstream in(CONFIG_FILE_PATH);
+
+    if (!in.is_open())
+    {
+      std::cout << "Cannot open configuration file from: "<< CONFIG_FILE_PATH << strerror(errno)<< std::endl;
+    }
+
+    std::string param;
+    double value;
+
+    while (!in.eof())
+    {
+      in >> param;
+      in >> value;
+
+      if (param == "EEDMO_TRANSLATION_X")
+      {
+        eedmo_t_x = value;
+      }
+      if (param == "EEDMO_TRANSLATION_Y")
+      {
+        eedmo_t_y = value;
+      }
+      if (param == "EEDMO_TRANSLATION_Z")
+      {
+        eedmo_t_z = value;
+      }
+      if (param == "EEDMO_QUARTENION_X")
+      {
+        eedmo_r_x = value;
+      }
+      if (param == "EEDMO_QUARTENION_Y")
+      {
+        eedmo_r_y = value;
+      }
+      if (param == "EEDMO_QUARTENION_Z")
+      {
+        eedmo_r_z = value;
+      }
+      if (param == "EEDMO_QUARTENION_W")
+      {
+        eedmo_r_w = value;
+      }
+
+      if (param == "WMLZERO_TRANSLATION_X")
+      {
+        wMl_zero_t_x = value;
+      }
+      if (param == "WMLZERO_TRANSLATION_Y")
+      {
+        wMl_zero_t_y = value;
+      }
+      if (param == "WMLZERO_TRANSLATION_Z")
+      {
+        wMl_zero_t_z = value;
+      }
+      if (param == "WMLZERO_QUARTENION_X")
+      {
+        wMl_zero_r_x = value;
+      }
+      if (param == "WMLZERO_QUARTENION_Y")
+      {
+        wMl_zero_r_y = value;
+      }
+      if (param == "WMLZERO_QUARTENION_Z")
+      {
+        wMl_zero_r_z = value;
+      }
+      if (param == "WMLZERO_QUARTENION_W")
+      {
+        wMl_zero_r_w = value;
+      }
+
+    }
+
+    in.close();
+
+    // Log the loaded configuration
+    cout << "eedMo translation (x,y,z) and quartenion rotation (x,y,z,w):"<<endl;
+    cout << eedmo_t_x<< endl;
+    cout << eedmo_t_y<< endl;
+    cout << eedmo_t_z<< endl;
+    cout << eedmo_r_x<< endl;
+    cout << eedmo_r_y<< endl;
+    cout << eedmo_r_z<< endl;
+    cout << eedmo_r_w<< endl;
+
+    cout << "wMl_zero translation (x,y,z) and quartenion rotation (x,y,z,w):"<<endl;
+    cout << wMl_zero_t_x << endl;
+    cout << wMl_zero_t_y << endl;
+    cout << wMl_zero_t_z << endl;
+    cout << wMl_zero_r_x << endl;
+    cout << wMl_zero_r_y << endl;
+    cout << wMl_zero_r_z << endl;
+    cout << wMl_zero_r_w << endl;
+
+  }
+
 void artCallback (const art_publisher::body::ConstPtr &msg)
 {
   x_pos = msg->bodies[0].pose.position.x;
@@ -36,13 +154,13 @@ void artCallback (const art_publisher::body::ConstPtr &msg)
   z_or  = msg->bodies[0].pose.orientation.z; 
   w_or  = msg->bodies[0].pose.orientation.w;
 
-  // std::cout << "ART x" << x_pos << std::endl;
-  // std::cout << "ART y" << y_pos << std::endl;
-  // std::cout << "ART z" << z_pos << std::endl;
-  // std::cout << "ART rot x" << x_or  << std::endl;
-  // std::cout << "ART rot y" << y_or  << std::endl;
-  // std::cout << "ART rot z" << z_or  << std::endl;
-  // std::cout << "ART rot w" << w_or  << std::endl;
+  // cout << "ART x" << x_pos << endl;
+  // cout << "ART y" << y_pos << endl;
+  // cout << "ART z" << z_pos << endl;
+  // cout << "ART rot x" << x_or  << endl;
+  // cout << "ART rot y" << y_or  << endl;
+  // cout << "ART rot z" << z_or  << endl;
+  // cout << "ART rot w" << w_or  << endl;
 }
 
 void my_function(int sig){
@@ -76,28 +194,26 @@ int main(int argc, char **argv)
   ros::Rate loop_rate(10);
   robot.connect("172.16.0.2");
   std::cout << "Connected " << std::endl;
+  setFromConfigFile();
 
   vpColVector ee_state(6);
   robot.setRobotState( vpRobot::STATE_VELOCITY_CONTROL);
   robot.getPosition( vpRobot::END_EFFECTOR_FRAME, ee_state);
 
   vpHomogeneousMatrix eedMee;
-  vpHomogeneousMatrix eedMo(vpTranslationVector(-0.251, 0.046, 0.004), vpQuaternionVector(0.361, 0.891, -0.075, -0.266));
+  vpHomogeneousMatrix eedMo(vpTranslationVector(eedmo_t_x, eedmo_t_y, eedmo_t_z), vpQuaternionVector(eedmo_r_x,eedmo_r_y,eedmo_r_z,eedmo_r_w));
 // - Translation: [-0.251, 0.046, 0.004]
 // - Rotation: in Quaternion [0.361, 0.891, -0.075, -0.266]
 //             in RPY (radian) [-2.774, -0.433, 2.289]
 //             in RPY (degree) [-158.918, -24.791, 131.170]
 
-
   vpHomogeneousMatrix wMo(vpTranslationVector(x_pos, y_pos, z_pos), vpQuaternionVector(x_or, y_or, z_or, w_or));
   vpHomogeneousMatrix l_zeroMee(vpTranslationVector( ee_state[0], ee_state[1], ee_state[2] ), vpThetaUVector(ee_state[3], ee_state[4], ee_state[5]));
-  vpHomogeneousMatrix wMl_zero(vpTranslationVector(0.218, -0.164, 0.169), vpQuaternionVector(-0.049, -0.013, 0.722, 0.690));
+  vpHomogeneousMatrix wMl_zero(vpTranslationVector(wMl_zero_t_x, wMl_zero_t_y, wMl_zero_t_z), vpQuaternionVector(wMl_zero_r_x, wMl_zero_r_y,wMl_zero_r_z, wMl_zero_r_w));
 // - Translation: [0.218, -0.164, 0.169]
 // - Rotation: in Quaternion [-0.049, -0.013, 0.722, 0.690]
 //             in RPY (radian) [-0.087, 0.052, 1.615]
 //             in RPY (degree) [-4.985, 2.979, 92.533]
-
-
 
   vpHomogeneousMatrix wMee = wMl_zero * l_zeroMee;
   eedMee = eedMo * wMo.inverse() * wMee;
@@ -116,16 +232,16 @@ int main(int argc, char **argv)
   task.addFeature( tu, tud );
   task.setLambda( 1 );
 
-  signal(SIGINT, my_function); 
+  signal(SIGINT, my_function);
 
-  while(!stop_program){
+  // while(!stop_program){
+  while(0){
     ros::Subscriber sub = n.subscribe("ARTBody", 1000, artCallback);
     // Update Matrixes
     vpColVector ee;
     robot.getPosition( vpRobot::END_EFFECTOR_FRAME, ee);
     vpHomogeneousMatrix wMo(vpTranslationVector(x_pos, y_pos, z_pos), vpQuaternionVector(x_or, y_or, z_or, w_or));
     vpHomogeneousMatrix l_zeroMee(vpTranslationVector( ee[0], ee[1], ee[2] ), vpThetaUVector(ee[3], ee[4], ee[5]));
-    vpHomogeneousMatrix wMl_zero(vpTranslationVector(0.218, -0.164, 0.169), vpQuaternionVector(-0.049, -0.013, 0.722, 0.690));
     vpHomogeneousMatrix wMee = wMl_zero * l_zeroMee;
 
     // Update visual features
@@ -156,9 +272,8 @@ int main(int argc, char **argv)
     // calibration matrices 
     // starting point ee wrt world = 0.4623542903, 0.136219078, 0.3078160891
 
-
-    // std::cout << "Ee rotation: "    << wMee.getRotationMatrix() << std::endl;
-    // std::cout << "Ee translation: " << wMee.getTranslationVector() << std::endl;
+    // cout << "Ee rotation: "    << wMee.getRotationMatrix() << endl;
+    // cout << "Ee translation: " << wMee.getTranslationVector() << endl;
 
     float distance_x = 0.20;
     float distance_y = 0.20;
@@ -269,30 +384,30 @@ int main(int argc, char **argv)
     float thresholdZMin = 6e-13;
     
     // // Rotation Calibration
-    // std::cout << "wMee rotation matrix: "<< std::endl;
-    // std::cout << wMee.getRotationMatrix()[0][0] << std::endl;
-    // std::cout << wMee.getRotationMatrix()[0][1] << std::endl;
-    // std::cout << wMee.getRotationMatrix()[0][2] << std::endl;
-    // std::cout << wMee.getRotationMatrix()[1][0] << std::endl;
-    // std::cout << wMee.getRotationMatrix()[1][1] << std::endl;
-    // std::cout << wMee.getRotationMatrix()[1][2] << std::endl;
-    // std::cout << wMee.getRotationMatrix()[2][0] << std::endl;
-    // std::cout << wMee.getRotationMatrix()[2][1] << std::endl;
-    // std::cout << wMee.getRotationMatrix()[2][2] << std::endl;
+    // cout << "wMee rotation matrix: "<< endl;
+    // cout << wMee.getRotationMatrix()[0][0] << endl;
+    // cout << wMee.getRotationMatrix()[0][1] << endl;
+    // cout << wMee.getRotationMatrix()[0][2] << endl;
+    // cout << wMee.getRotationMatrix()[1][0] << endl;
+    // cout << wMee.getRotationMatrix()[1][1] << endl;
+    // cout << wMee.getRotationMatrix()[1][2] << endl;
+    // cout << wMee.getRotationMatrix()[2][0] << endl;
+    // cout << wMee.getRotationMatrix()[2][1] << endl;
+    // cout << wMee.getRotationMatrix()[2][2] << endl;
 
     if (
-        // x_backward<=next_world[0] && next_world[0]<=x_forward
-        // && y_right<=next_world[1] && next_world[1]<=y_left
-        // && z_down<=next_world[2] && next_world[2]<=z_up
+        x_backward<=next_world[0] && next_world[0]<=x_forward
+        && y_right<=next_world[1] && next_world[1]<=y_left
+        && z_down<=next_world[2] && next_world[2]<=z_up
 
-        // && std::fabs((rotx_Mmin*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdXMin
-        // && std::fabs((rotx_Mmax*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdXMax
-        // && std::fabs((roty_Mmin*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdYMin
-        // // && std::fabs((roty_Mmax*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdYMax
-        // && std::fabs((rotz_Mmin*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdZMin
-        // && std::fabs((rotz_Mmax*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdZMax
+        && std::fabs((rotx_Mmin*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdXMin
+        && std::fabs((rotx_Mmax*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdXMax
+        && std::fabs((roty_Mmin*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdYMin
+        // && std::fabs((roty_Mmax*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdYMax
+        && std::fabs((rotz_Mmin*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdZMin
+        && std::fabs((rotz_Mmax*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdZMax
 
-        !(isnan(v_c[0]))
+        &&!(isnan(v_c[0]))
         && !(isnan(v_c[1]))
         && !(isnan(v_c[2]))
         && !(isnan(v_c[3]))
@@ -310,7 +425,7 @@ int main(int argc, char **argv)
       v_c[4] = clip(v_c[4], -0.1 ,0.1);
       v_c[5] = clip(v_c[5], -0.1 ,0.1);
 
-      robot.setVelocity(vpRobot::END_EFFECTOR_FRAME, v_c);
+      // robot.setVelocity(vpRobot::END_EFFECTOR_FRAME, v_c);
       std::cout << "v_c" << v_c << std::endl;
     }
     else
