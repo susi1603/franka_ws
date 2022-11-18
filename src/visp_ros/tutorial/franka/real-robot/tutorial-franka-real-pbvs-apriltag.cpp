@@ -344,7 +344,7 @@ main( int argc, char **argv )
       float z_up       = wmee_ini_z + t_constraint_z_up;
       float z_down     = wmee_ini_z - t_constraint_z_down;
 
-      clip(z_up, 0.0, 0.593325);
+      clip( z_up, 0.0, 0.593325 );
 
       vpColVector np_ee( 4 );
       np_ee[0] = nt_x;
@@ -454,21 +454,21 @@ main( int argc, char **argv )
       // cout << wMee.getRotationMatrix()[2][1] << endl;
       // cout << wMee.getRotationMatrix()[2][2] << endl;
 
-      if ( x_backward <= next_world[0] && next_world[0] <= x_forward && y_right <= next_world[1] &&
-           next_world[1] <= y_left && z_down <= next_world[2] &&
-           next_world[2] <= z_up
-
-           // && std::fabs((rotx_Mmin*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdXMin
-           // && std::fabs((rotx_Mmax*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdXMax
-           // && std::fabs((roty_Mmin*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdYMin
-           // // && std::fabs((roty_Mmax*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdYMax
-           // && std::fabs((rotz_Mmin*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdZMin
-           // && std::fabs((rotz_Mmax*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdZMax
-
-           && !( isnan( v_c[0] ) ) && !( isnan( v_c[1] ) ) && !( isnan( v_c[2] ) ) && !( isnan( v_c[3] ) ) &&
-           !( isnan( v_c[4] ) ) && !( isnan( v_c[5] ) )
-
-           && isARTNormalized() )
+      if (  
+          x_backward <= next_world[0] && next_world[0] <= x_forward 
+          && y_right <= next_world[1] && next_world[1] <= y_left 
+          && z_down  <= next_world[2] && next_world[2] <= z_up
+          // && std::fabs((rotx_Mmin*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdXMin
+          // && std::fabs((rotx_Mmax*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdXMax
+          // && std::fabs((roty_Mmin*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdYMin
+          // && std::fabs((roty_Mmax*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdYMax
+          // && std::fabs((rotz_Mmin*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdZMin
+          // && std::fabs((rotz_Mmax*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdZMax
+          &&!( isnan( v_c[0] ) ) && !( isnan( v_c[1] ) ) 
+          &&!( isnan( v_c[2] ) ) && !( isnan( v_c[3] ) ) 
+          &&!( isnan( v_c[4] ) ) && !( isnan( v_c[5] ) )
+          && isARTNormalized() 
+          )
       {
         // here set velocity
         v_c[0] = clip( v_c[0], -0.1, 0.1 );
@@ -483,55 +483,56 @@ main( int argc, char **argv )
       }
       else
       {
-        cout << "Constraint violated " << endl;
+        // cout << "Constraint violated " << endl;
         // cout << "v_c" << v_c << endl;
         if ( !isARTNormalized() )
         {
-          cout << "Art out of range " << endl;
+          cout << "Constraint violated. Art out of range" << endl;
         }
         // rotation matrix constraints
         if ( fabs( ( rotx_Mmin * rotMatrixnext.inverseByLU() - identityMatrix ).det() ) < thresholdXMin )
         {
           float res = fabs( ( rotx_Mmin * rotMatrixnext.inverseByLU() - identityMatrix ).det() );
-          cout << "constraints rotx_Mmin " << res << endl;
+          cout << "Constraint violated rotx_Mmin :" << res << endl;
         }
         if ( fabs( ( rotx_Mmax * rotMatrixnext.inverseByLU() - identityMatrix ).det() ) < thresholdXMax )
         {
           float res = fabs( ( rotx_Mmax * rotMatrixnext.inverseByLU() - identityMatrix ).det() );
-          cout << "constraints rotx_Mmax " << res << endl;
+          cout << "Constraint violated rotx_Mmax " << res << endl;
         }
 
         if ( fabs( ( roty_Mmin * rotMatrixnext.inverseByLU() - identityMatrix ).det() ) < thresholdYMin )
         {
           float res = fabs( ( roty_Mmin * rotMatrixnext.inverseByLU() - identityMatrix ).det() );
-          cout << "constraints roty_Mmin " << res << endl;
+          cout << "Constraint violated roty_Mmin " << res << endl;
         }
         if ( fabs( ( roty_Mmax * rotMatrixnext.inverseByLU() - identityMatrix ).det() ) < thresholdYMax )
         {
           float res = fabs( ( roty_Mmax * rotMatrixnext.inverseByLU() - identityMatrix ).det() );
-          cout << "constraints roty_Mmax " << res << endl;
+          cout << "Constraint violated roty_Mmax " << res << endl;
         }
 
         if ( fabs( ( rotz_Mmin * rotMatrixnext.inverseByLU() - identityMatrix ).det() ) < thresholdZMin )
         {
           float res = fabs( ( rotz_Mmin * rotMatrixnext.inverseByLU() - identityMatrix ).det() );
-          cout << "constraints rotz_Mmin " << res << endl;
+          cout << "Constraint violated rotz_Mmin " << res << endl;
         }
         if ( fabs( ( rotz_Mmax * rotMatrixnext.inverseByLU() - identityMatrix ).det() ) < thresholdZMax )
         {
           float res = fabs( ( rotz_Mmax * rotMatrixnext.inverseByLU() - identityMatrix ).det() );
-          cout << "constraints rotz_Mmax " << res << endl;
+          cout << "Constraint violated rotz_Mmax " << res << endl;
         }
 
         // translation constraints
-        if ( next_world[0] < x_backward)
+        if ( next_world[0] < x_backward )
         {
           cout << "X backward violated: translation x" << next_world[0] << endl;
         }
-        if (next_world[0] > x_forward){
+        if ( next_world[0] > x_forward )
+        {
           cout << "X forward violated: translation x" << next_world[0] << endl;
         }
-        if ( next_world[1] <  y_right)
+        if ( next_world[1] < y_right )
         {
           cout << "Y right violated: translation y" << next_world[1] << endl;
         }
@@ -543,7 +544,8 @@ main( int argc, char **argv )
         {
           cout << "Z down violated: translation z" << next_world[2] << endl;
         }
-        if (next_world[2] > z_up){
+        if ( next_world[2] > z_up )
+        {
           cout << "Z up violated: translation z" << next_world[2] << endl;
         }
 
