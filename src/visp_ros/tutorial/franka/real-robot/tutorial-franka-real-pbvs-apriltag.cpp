@@ -44,13 +44,23 @@ double wMl_zero_r_y;
 double wMl_zero_r_z;
 double wMl_zero_r_w;
 
+double wmee_ini_x;
+double wmee_ini_y;
+double wmee_ini_z;
+double t_constraint_x_forward;
+double t_constraint_x_backward;
+double t_constraint_y_left;
+double t_constraint_y_right;
+double t_constraint_z_up;
+double t_constraint_z_down;
+
 void setFromConfigFile(){
 
     std::ifstream in(CONFIG_FILE_PATH);
 
     if (!in.is_open())
     {
-      std::cout << "Cannot open configuration file from: "<< CONFIG_FILE_PATH << strerror(errno)<< std::endl;
+      cout << "Cannot open configuration file from: "<< CONFIG_FILE_PATH << strerror(errno)<< endl;
     }
 
     std::string param;
@@ -119,6 +129,44 @@ void setFromConfigFile(){
         wMl_zero_r_w = value;
       }
 
+      if (param == "STARTING_WMEE_X")
+      {
+        wmee_ini_x = value;
+      }
+      if (param == "STARTING_WMEE_Y")
+      {
+        wmee_ini_y = value;
+      }
+      if (param == "STARTING_WMEE_Z")
+      {
+        wmee_ini_z = value;
+      }
+
+      if (param == "BOUNDING_BOX_X_forward")
+      {
+        t_constraint_x_forward = value;
+      }
+      if (param == "BOUNDING_BOX_X_backward")
+      {
+        t_constraint_x_backward = value;
+      }
+      if (param == "BOUNDING_BOX_Y_left")
+      {
+        t_constraint_y_left = value;
+      }
+      if (param == "BOUNDING_BOX_Y_right")
+      {
+        t_constraint_y_right = value;
+      }
+      if (param == "BOUNDING_BOX_Z_up")
+      {
+        t_constraint_z_up = value;
+      }
+      if (param == "BOUNDING_BOX_Z_down")
+      {
+        t_constraint_z_down = value;
+      }
+
     }
 
     in.close();
@@ -142,6 +190,16 @@ void setFromConfigFile(){
     cout << wMl_zero_r_z << endl;
     cout << wMl_zero_r_w << endl;
 
+    cout << "starting position end-effector with respect to world frame translation (x,y,z): "<<endl;
+    cout << wmee_ini_x << endl;
+    cout << wmee_ini_y << endl;
+    cout << wmee_ini_z << endl;
+
+    cout << "distances constraints along z: "<<endl;
+    //cout << t_constraint_x << endl;
+    //cout << t_constraint_y << endl;
+    cout << t_constraint_z_up << endl;
+    cout << t_constraint_z_down << endl;
   }
 
 void artCallback (const art_publisher::body::ConstPtr &msg)
@@ -153,14 +211,6 @@ void artCallback (const art_publisher::body::ConstPtr &msg)
   y_or  = msg->bodies[0].pose.orientation.y; 
   z_or  = msg->bodies[0].pose.orientation.z; 
   w_or  = msg->bodies[0].pose.orientation.w;
-
-  // cout << "ART x" << x_pos << endl;
-  // cout << "ART y" << y_pos << endl;
-  // cout << "ART z" << z_pos << endl;
-  // cout << "ART rot x" << x_or  << endl;
-  // cout << "ART rot y" << y_or  << endl;
-  // cout << "ART rot z" << z_or  << endl;
-  // cout << "ART rot w" << w_or  << endl;
 }
 
 void my_function(int sig){
@@ -193,7 +243,7 @@ int main(int argc, char **argv)
   ros::Subscriber sub = n.subscribe("ARTBody", 1000, artCallback);
   ros::Rate loop_rate(10);
   robot.connect("172.16.0.2");
-  std::cout << "Connected " << std::endl;
+  cout << "Connected " << endl;
   setFromConfigFile();
 
   vpColVector ee_state(6);
@@ -230,12 +280,12 @@ int main(int argc, char **argv)
   vpFeatureThetaU tud( vpFeatureThetaU::cdRc );
   task.addFeature( t, td );
   task.addFeature( tu, tud );
-  task.setLambda( 1 );
+  task.setLambda( 0.55 );
 
   signal(SIGINT, my_function);
 
-  // while(!stop_program){
-  while(0){
+  while(!stop_program){
+  //while(0){
     ros::Subscriber sub = n.subscribe("ARTBody", 1000, artCallback);
     // Update Matrixes
     vpColVector ee;
@@ -246,21 +296,15 @@ int main(int argc, char **argv)
 
     // Update visual features
     eedMee = eedMo * wMo.inverse() * wMee;
-    // std::cout << "eedMee" << eedMee << std::endl;
     t.buildFrom( eedMee );
     tu.buildFrom( eedMee);
 
-    // vpFeatureTranslation td( vpFeatureTranslation::cdMc );
-    // vpFeatureThetaU tud( vpFeatureThetaU::cdRc );
-    // task.addFeature( t, td );
-    // task.addFeature( tu, tud );
     v_c = task.computeControlLaw();
-
 
     double maxVel = robot.getMaxTranslationVelocity();
     double maxRot = robot.getMaxRotationVelocity();
 
-    float dt = 0.15;
+    float dt = 0.1;
 
     float nt_x = v_c[0]*dt;
     float nt_y = v_c[1]*dt;
@@ -275,16 +319,19 @@ int main(int argc, char **argv)
     // cout << "Ee rotation: "    << wMee.getRotationMatrix() << endl;
     // cout << "Ee translation: " << wMee.getTranslationVector() << endl;
 
-    float distance_x = 0.20;
-    float distance_y = 0.20;
-    float distance_z = 0.20;
+    clip(t_constraint_x_forward  , 0.0, 0.01);
+    clip(t_constraint_x_backward , 0.0, 0.1);
+    clip(t_constraint_y_left     , 0.0, 0.075);
+    clip(t_constraint_y_right    , 0.0, 0.075);
+    clip(t_constraint_z_up       , 0.0, 0.01);
+    clip(t_constraint_z_down     , 0.0, 0.05);
 
-    float x_forward  = 0.4623542903 + distance_x;
-    float x_backward = 0.4623542903 - distance_x;
-    float y_left     = 0.136219078 + distance_y;
-    float y_right    = 0.05;
-    float z_up       = 0.3078160891 + distance_z;
-    float z_down     = 0.15;
+    float x_forward  = wmee_ini_x + t_constraint_x_forward ;
+    float x_backward = wmee_ini_x - t_constraint_x_backward;
+    float y_left     = wmee_ini_y - t_constraint_y_left    ;
+    float y_right    = wmee_ini_y + t_constraint_y_right   ;
+    float z_up       = wmee_ini_z + t_constraint_z_up      ;
+    float z_down     = wmee_ini_z - t_constraint_z_down    ;
 
     vpColVector np_ee(4);
     np_ee[0] = nt_x;
@@ -300,7 +347,6 @@ int main(int argc, char **argv)
     vpHomogeneousMatrix wMee_next = wMee * eeMee_next;
 
     //ROTATION CONSTRAINING
-
     vpMatrix rotx_Mmin(3,3);
     //trial 2
     rotx_Mmin[0][0] = -0.05515376604;
@@ -400,12 +446,12 @@ int main(int argc, char **argv)
         && y_right<=next_world[1] && next_world[1]<=y_left
         && z_down<=next_world[2] && next_world[2]<=z_up
 
-        && std::fabs((rotx_Mmin*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdXMin
-        && std::fabs((rotx_Mmax*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdXMax
-        && std::fabs((roty_Mmin*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdYMin
-        // && std::fabs((roty_Mmax*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdYMax
-        && std::fabs((rotz_Mmin*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdZMin
-        && std::fabs((rotz_Mmax*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdZMax
+        // && std::fabs((rotx_Mmin*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdXMin
+        // && std::fabs((rotx_Mmax*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdXMax
+        // && std::fabs((roty_Mmin*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdYMin
+        // // && std::fabs((roty_Mmax*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdYMax
+        // && std::fabs((rotz_Mmin*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdZMin
+        // && std::fabs((rotz_Mmax*rotMatrixnext.inverseByLU()-identityMatrix).det())>=thresholdZMax
 
         &&!(isnan(v_c[0]))
         && !(isnan(v_c[1]))
@@ -425,53 +471,54 @@ int main(int argc, char **argv)
       v_c[4] = clip(v_c[4], -0.1 ,0.1);
       v_c[5] = clip(v_c[5], -0.1 ,0.1);
 
-      // robot.setVelocity(vpRobot::END_EFFECTOR_FRAME, v_c);
-      std::cout << "v_c" << v_c << std::endl;
+      robot.setVelocity(vpRobot::END_EFFECTOR_FRAME, v_c);
+      cout << "current Y" << next_world[1] << endl;
+      cout << "y_left" << y_left << endl;
     }
     else
     {
-      std::cout << "Constraint violated " << std::endl;
-      // std::cout << "v_c" << v_c << std::endl;
+      cout << "Constraint violated " << endl;
+      // cout << "v_c" << v_c << endl;
       if (!isARTNormalized()){
-        std::cout << "Art out of range "<< std::endl;
+        cout << "Art out of range "<< endl;
       }
       // rotation matrix constraints
-      if (std::fabs((rotx_Mmin*rotMatrixnext.inverseByLU()-identityMatrix).det())<thresholdXMin){
-        float res = std::fabs((rotx_Mmin*rotMatrixnext.inverseByLU()-identityMatrix).det());
-        std::cout << "constraints rotx_Mmin "<< res << std::endl;
+      if (fabs((rotx_Mmin*rotMatrixnext.inverseByLU()-identityMatrix).det())<thresholdXMin){
+        float res = fabs((rotx_Mmin*rotMatrixnext.inverseByLU()-identityMatrix).det());
+        cout << "constraints rotx_Mmin "<< res << endl;
       }
-      if (std::fabs((rotx_Mmax*rotMatrixnext.inverseByLU()-identityMatrix).det())<thresholdXMax){
-        float res = std::fabs((rotx_Mmax*rotMatrixnext.inverseByLU()-identityMatrix).det());
-        std::cout << "constraints rotx_Mmax "<< res << std::endl;
-      }
-
-      if (std::fabs((roty_Mmin*rotMatrixnext.inverseByLU()-identityMatrix).det())<thresholdYMin){
-        float res = std::fabs((roty_Mmin*rotMatrixnext.inverseByLU()-identityMatrix).det());
-        std::cout << "constraints roty_Mmin "<< res << std::endl;
-      }
-      if (std::fabs((roty_Mmax*rotMatrixnext.inverseByLU()-identityMatrix).det())<thresholdYMax){
-        float res = std::fabs((roty_Mmax*rotMatrixnext.inverseByLU()-identityMatrix).det());
-        std::cout << "constraints roty_Mmax "<< res << std::endl;
+      if (fabs((rotx_Mmax*rotMatrixnext.inverseByLU()-identityMatrix).det())<thresholdXMax){
+        float res = fabs((rotx_Mmax*rotMatrixnext.inverseByLU()-identityMatrix).det());
+        cout << "constraints rotx_Mmax "<< res << endl;
       }
 
-      if (std::fabs((rotz_Mmin*rotMatrixnext.inverseByLU()-identityMatrix).det())<thresholdZMin){
-        float res = std::fabs((rotz_Mmin*rotMatrixnext.inverseByLU()-identityMatrix).det());
-        std::cout << "constraints rotz_Mmin "<< res << std::endl;
+      if (fabs((roty_Mmin*rotMatrixnext.inverseByLU()-identityMatrix).det())<thresholdYMin){
+        float res = fabs((roty_Mmin*rotMatrixnext.inverseByLU()-identityMatrix).det());
+        cout << "constraints roty_Mmin "<< res << endl;
       }
-      if (std::fabs((rotz_Mmax*rotMatrixnext.inverseByLU()-identityMatrix).det())<thresholdZMax){
-        float res = std::fabs((rotz_Mmax*rotMatrixnext.inverseByLU()-identityMatrix).det());
-        std::cout << "constraints rotz_Mmax "<< res << std::endl;
+      if (fabs((roty_Mmax*rotMatrixnext.inverseByLU()-identityMatrix).det())<thresholdYMax){
+        float res = fabs((roty_Mmax*rotMatrixnext.inverseByLU()-identityMatrix).det());
+        cout << "constraints roty_Mmax "<< res << endl;
+      }
+
+      if (fabs((rotz_Mmin*rotMatrixnext.inverseByLU()-identityMatrix).det())<thresholdZMin){
+        float res = fabs((rotz_Mmin*rotMatrixnext.inverseByLU()-identityMatrix).det());
+        cout << "constraints rotz_Mmin "<< res << endl;
+      }
+      if (fabs((rotz_Mmax*rotMatrixnext.inverseByLU()-identityMatrix).det())<thresholdZMax){
+        float res = fabs((rotz_Mmax*rotMatrixnext.inverseByLU()-identityMatrix).det());
+        cout << "constraints rotz_Mmax "<< res << endl;
       }
 
       // translation constraints
       if (next_world[0]<x_backward || x_forward<next_world[0]){
-        std::cout << "translation x "<< next_world[0] << std::endl;
+        cout << "translation x "<< next_world[0] << endl;
       }
       if (next_world[1]<y_right || y_left<next_world[1]){
-        std::cout << "translation y "<< next_world[1] << std::endl;
+        cout << "translation y "<< next_world[1] << endl;
       }
       if (next_world[2]<z_down || z_up<next_world[2]){
-        std::cout << "translation z "<< next_world[2] << std::endl;
+        cout << "translation z "<< next_world[2] << endl;
       }
 
       v_c = 0;
@@ -483,13 +530,13 @@ int main(int argc, char **argv)
     double error_tr            = sqrt( cd_t_c.sumSquare() );
     double error_tu            = vpMath::deg( sqrt( cd_tu_c.sumSquare() ) );
 
-    // std::cout << "error_t: " << error_tr << std::endl;
-    // std::cout << "error_tu: " << error_tu << std::endl;
+    // cout << "error_t: " << error_tr << endl;
+    // cout << "error_tu: " << error_tu << endl;
 
     if ( error_tr < convergence_threshold_t && error_tu < convergence_threshold_tu )
     {
       has_converged = true;
-      std::cout << "Servo task has converged" << std::endl;
+      cout << "Servo task has converged" << endl;
     }
 
     if(flag){
@@ -508,18 +555,18 @@ int main(int argc, char **argv)
   } //while(1)
 
   } catch (const vpException &e) {
-    std::cout << "ViSP exception: " << e.what() << std::endl;
-    std::cout << "Stop the robot " << std::endl;
+    cout << "ViSP exception: " << e.what() << endl;
+    cout << "Stop the robot " << endl;
     robot.setRobotState(vpRobot::STATE_STOP);
     return EXIT_FAILURE;
   } catch (const franka::NetworkException &e) {
-    std::cout << "Franka network exception: " << e.what() << std::endl;
-    std::cout << "Check if you are connected to the Franka robot"
+    cout << "Franka network exception: " << e.what() << endl;
+    cout << "Check if you are connected to the Franka robot"
               << " or if you specified the right IP using --ip command line option set by default to 192.168.1.1. "
-              << std::endl;
+              << endl;
     return EXIT_FAILURE;
   } catch (const std::exception &e) {
-    std::cout << "Franka exception: " << e.what() << std::endl;
+    cout << "Franka exception: " << e.what() << endl;
     return EXIT_FAILURE;
   }
 
