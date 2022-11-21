@@ -368,8 +368,8 @@ main( int argc, char **argv )
       float z_up       = wmee_ini_z + t_constraint_z_up;
       float z_down     = wmee_ini_z - t_constraint_z_down;
 
-      // clip( z_up, 0.0, 0.593325 );
-      // clip( y_left, 0.0, 0.5 );
+      clip( z_up, 0.0, 0.58 );
+      clip( y_left, 0.0, 0.5 );
 
       vpColVector np_ee( 4 );
       np_ee[0] = nt_x;
@@ -598,13 +598,13 @@ main( int argc, char **argv )
       if ( error_tr < convergence_threshold_t && error_tu < convergence_threshold_tu )
       {
         has_converged = true;
-        cout << "Servo task has converged" << endl;
+        // cout << "Servo task has converged" << endl;
       } else {
         has_converged = false; 
       }
 
-      cout << "error t " << error_tr << endl;
-      cout << "error_tu " << error_tu << endl;
+      // cout << "error t " << error_tr << endl;
+      // cout << "error_tu " << error_tu << endl;
 
       if ( flag )
       {
