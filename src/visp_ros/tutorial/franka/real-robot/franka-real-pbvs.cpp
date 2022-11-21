@@ -304,7 +304,7 @@ main( int argc, char **argv )
     vpPlot *plotter = nullptr;
     int iter_plot   = 0;
 
-    plotter = new vpPlot( 2, static_cast< int >( 250 * 2 ), 500, static_cast< int >( 640 ) + 80, 10,
+    plotter = new vpPlot( 2, static_cast< int >( 250 * 2 ), 500, static_cast< int >( 0 ) + 80, 10,
                           "Real time curves plotter" );
     plotter->setTitle( 0, "Visual features error" );
     plotter->setTitle( 1, "Velocities" );
@@ -580,8 +580,8 @@ main( int argc, char **argv )
 
       vpTranslationVector eed_t_ee = eedMee.getTranslationVector();
       vpThetaUVector eed_tu_ee     = eedMee.getThetaUVector();
-      double error_tr            = sqrt( eed_t_ee.sumSquare() );
-      double error_tu            = vpMath::deg( sqrt( eed_tu_ee.sumSquare() ) );
+      double error_tr              = sqrt( eed_t_ee.sumSquare() );
+      double error_tu              = vpMath::deg( sqrt( eed_tu_ee.sumSquare() ) );
 
       // cout << "error_t: " << error_tr << endl;
       // cout << "error_tu: " << error_tu << endl;
