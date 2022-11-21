@@ -10,6 +10,8 @@
 #include <visp3/visual_features/vpFeatureThetaU.h>
 #include <visp3/visual_features/vpFeatureTranslation.h>
 #include <visp3/vs/vpServo.h>
+#include <visp3/gui/vpDisplayOpenCV.h>
+#include <visp3/gui/vpPlot.h>
 
 #define CONFIG_FILE_PATH "./src/visp_ros/tutorial/franka/real-robot/config/configFile.config"
 art_publisher::body local_pos;
@@ -299,6 +301,28 @@ main( int argc, char **argv )
 
     signal( SIGINT, my_function );
 
+    vpPlot *plotter = nullptr;
+    int iter_plot   = 0;
+
+    plotter = new vpPlot( 2, static_cast< int >( 250 * 2 ), 500, static_cast< int >( 640 ) + 80, 10,
+                          "Real time curves plotter" );
+    plotter->setTitle( 0, "Visual features error" );
+    plotter->setTitle( 1, "Velocities" );
+    plotter->initGraph( 0, 6 );
+    plotter->initGraph( 1, 6 );
+    plotter->setLegend( 0, 0, "error_feat_tx" );
+    plotter->setLegend( 0, 1, "error_feat_ty" );
+    plotter->setLegend( 0, 2, "error_feat_tz" );
+    plotter->setLegend( 0, 3, "error_feat_theta_ux" );
+    plotter->setLegend( 0, 4, "error_feat_theta_uy" );
+    plotter->setLegend( 0, 5, "error_feat_theta_uz" );
+    plotter->setLegend( 1, 0, "vc_x" );
+    plotter->setLegend( 1, 1, "vc_y" );
+    plotter->setLegend( 1, 2, "vc_z" );
+    plotter->setLegend( 1, 3, "wc_x" );
+    plotter->setLegend( 1, 4, "wc_y" );
+    plotter->setLegend( 1, 5, "wc_z" );
+
     while ( !stop_program )
     {
       // while(0){
@@ -553,13 +577,18 @@ main( int argc, char **argv )
         robot.setVelocity( vpRobot::END_EFFECTOR_FRAME, v_c );
       }
 
-      vpTranslationVector cd_t_c = eedMee.getTranslationVector();
-      vpThetaUVector cd_tu_c     = eedMee.getThetaUVector();
-      double error_tr            = sqrt( cd_t_c.sumSquare() );
-      double error_tu            = vpMath::deg( sqrt( cd_tu_c.sumSquare() ) );
+
+      vpTranslationVector eed_t_ee = eedMee.getTranslationVector();
+      vpThetaUVector eed_tu_ee     = eedMee.getThetaUVector();
+      double error_tr            = sqrt( eed_t_ee.sumSquare() );
+      double error_tu            = vpMath::deg( sqrt( eed_tu_ee.sumSquare() ) );
 
       // cout << "error_t: " << error_tr << endl;
       // cout << "error_tu: " << error_tu << endl;
+
+      plotter->plot( 0, iter_plot, task.getError() );
+      plotter->plot( 1, iter_plot, v_c );
+      iter_plot++;
 
       if ( error_tr < convergence_threshold_t && error_tu < convergence_threshold_tu )
       {
@@ -581,6 +610,13 @@ main( int argc, char **argv )
       loop_rate.sleep();
 
     } // while(1)
+
+    if ( plotter != nullptr )
+    {
+      delete plotter;
+      plotter = nullptr;
+    }
+
   }
   catch ( const vpException &e )
   {

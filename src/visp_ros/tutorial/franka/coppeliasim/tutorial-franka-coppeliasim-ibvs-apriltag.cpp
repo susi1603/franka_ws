@@ -431,6 +431,8 @@ main( int argc, char **argv )
 
       robot.setVelocity( vpRobot::CAMERA_FRAME, v_c );
 
+      std::cout << "image width" << I.getWidth()<< std::endl;
+
       std::stringstream ss;
       ss << "Loop time [s]: " << std::round( ( sim_time - sim_time_prev ) * 1000. ) / 1000.;
       ss << " Simulation time [s]: " << sim_time;
