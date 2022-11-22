@@ -25,6 +25,7 @@ For calibration steps:
 
 tf::StampedTransform eedMo;
 tf::StampedTransform wMee;
+tf::StampedTransform wMo;
 using namespace std;
 
 void
@@ -136,8 +137,32 @@ setToConfigFile()
     }
     if ( param == "BOUNDING_BOX_Z_down" )
     {
-      out << param << " " << value;
+      out << param << " " << value << endl;
     }
+
+    double r,y,p;
+    double yaw_object,pitch_object,roll_object;
+    geometry_msgs::Quaternion q_object = wMo.transform.rotation;
+    tf::Quaternion tfq;
+    tf::quaternionMsgToTF(q_object, tfq);
+    tf::Matrix3x3(tfq).getEulerYPR(y,p,r);
+    yaw_object = angles::to_degrees(y);
+    pitch_object = angles::to_degrees(p);
+    roll_object = angles::to_degrees(r);
+
+    if ( param == "WMO_R" )
+    {
+      out << param << " " << roll_object << endl;
+    }
+    if ( param == "WMO_P" )
+    {
+      out << param << " " << pitch_object << endl;
+    }
+    if ( param == "WMO_Y" )
+    {
+      out << param << " " << yaw_object;
+    }
+
   }
   in.close();
   out.close();
@@ -159,6 +184,7 @@ main( int argc, char **argv )
     {
       listener.lookupTransform( "/panda_EE", "/object", ros::Time( 0 ), eedMo );
       listener.lookupTransform( "/world", "/panda_EE", ros::Time( 0 ), wMee );
+      listener.lookupTransform( "/world", "/object", ros::Time( 0 ), wMo );
     }
     catch ( tf::TransformException ex )
     {
