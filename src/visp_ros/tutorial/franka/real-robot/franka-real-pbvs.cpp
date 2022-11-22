@@ -368,8 +368,8 @@ main( int argc, char **argv )
       float z_up       = wmee_ini_z + t_constraint_z_up;
       float z_down     = wmee_ini_z - t_constraint_z_down;
 
-      clip( z_up, 0.0, 0.58 );
-      clip( y_left, 0.0, 0.5 );
+      z_up    = clip( z_up, 0.0, 0.58 );
+      y_left  = clip( y_left, 0.0, 0.50 );
 
       vpColVector np_ee( 4 );
       np_ee[0] = nt_x;
