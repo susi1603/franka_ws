@@ -103,6 +103,7 @@
 #include <visp3/gui/vpPlot.h>
 
 #include <tf/transform_listener.h>
+#include <time.h>
 
 #define CONFIG_FILE_PATH "./src/visp_ros/tutorial/franka/real-robot/config/configFile.config"
 art_publisher::body local_pos;
@@ -149,6 +150,7 @@ double t_constraint_z_down;
 double wMoo_ini_r;
 double wMoo_ini_p;
 double wMoo_ini_y;
+vpPlot *plotter = nullptr;
 
 void
 setFromConfigFile()
@@ -319,6 +321,22 @@ isARTNormalized()
   }
 }
 
+void outputDataFiles(){
+  time_t rawtime;
+  struct tm * timeinfo;
+  char buffer[80];
+  time (&rawtime);
+  timeinfo = localtime(&rawtime);
+  strftime(buffer,sizeof(buffer),"%d-%m-%Y %H:%M",timeinfo);
+  std::string str(buffer);
+  std::string str_error;
+  std::string str_vc;
+  str_error = str+"-error.dat";
+  str_vc=str+"-velocity.dat";
+  plotter->saveData(0, str_error);
+  plotter->saveData(1, str_vc);
+}
+
 int
 main( int argc, char **argv )
 {
@@ -377,8 +395,6 @@ main( int argc, char **argv )
     task.setLambda( 0.5 );
 
     signal( SIGINT, my_function );
-
-    vpPlot *plotter = nullptr;
     int iter_plot   = 0;
 
     plotter = new vpPlot( 2, static_cast< int >( 250 * 2 ), 500, static_cast< int >( 0 ) + 80, 10,
@@ -458,10 +474,9 @@ main( int argc, char **argv )
       tfScalar yaw, pitch, roll;
       tf::Matrix3x3 mat(q_tf);
       mat.getEulerYPR(yaw,pitch,roll);
-      cout << "euler angles r " << fabs( wMoo_ini_r - roll) << endl;
-      cout << "euler angles p " << fabs( wMoo_ini_p - pitch) << endl;
-      cout << "euler angles y"  << fabs( wMoo_ini_y - yaw) << endl;
-
+      // cout << "euler angles r " << fabs( wMoo_ini_r - roll) << endl;
+      // cout << "euler angles p " << fabs( wMoo_ini_p - pitch) << endl;
+      // cout << "euler angles y"  << fabs( wMoo_ini_y - yaw) << endl;
 
       if (  
           x_backward <= next_world[0] && next_world[0] <= x_forward 
@@ -482,8 +497,8 @@ main( int argc, char **argv )
         v_c[4] = clip( v_c[4], -0.1, 0.1 );
         v_c[5] = clip( v_c[5], -0.1, 0.1 );
 
-        robot.setVelocity( vpRobot::END_EFFECTOR_FRAME, v_c );
-        cout << "Robot moving v_c : " << v_c << endl;
+        // robot.setVelocity( vpRobot::END_EFFECTOR_FRAME, v_c );
+        // cout << "Robot moving v_c : " << v_c << endl;
       }
       else
       {
@@ -562,8 +577,9 @@ main( int argc, char **argv )
 
       ros::spinOnce();
       loop_rate.sleep();
-
     } // while(1)
+
+    outputDataFiles();
 
     if ( plotter != nullptr )
     {
@@ -572,11 +588,13 @@ main( int argc, char **argv )
     }
 
   }
+
   catch ( const vpException &e )
   {
     cout << "ViSP exception: " << e.what() << endl;
     cout << "Stop the robot " << endl;
     robot.setRobotState( vpRobot::STATE_STOP );
+    outputDataFiles();
     return EXIT_FAILURE;
   }
   catch ( const franka::NetworkException &e )
@@ -584,11 +602,13 @@ main( int argc, char **argv )
     cout << "Franka network exception: " << e.what() << endl;
     cout << "Check if you are connected to the Franka robot"
          << " or if you specified the right IP using --ip command line option set by default to 192.168.1.1. " << endl;
+    outputDataFiles();
     return EXIT_FAILURE;
   }
   catch ( const std::exception &e )
   {
     cout << "Franka exception: " << e.what() << endl;
+    outputDataFiles();
     return EXIT_FAILURE;
   }
 

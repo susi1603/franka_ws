@@ -55,6 +55,7 @@ double t_constraint_y_left;
 double t_constraint_y_right;
 double t_constraint_z_up;
 double t_constraint_z_down;
+vpPlot *plotter = nullptr;
 
 void
 setFromConfigFile()
@@ -243,6 +244,22 @@ isARTNormalized()
   }
 }
 
+void outputDataFiles(){
+  time_t rawtime;
+  struct tm * timeinfo;
+  char buffer[80];
+  time (&rawtime);
+  timeinfo = localtime(&rawtime);
+  strftime(buffer,sizeof(buffer),"%d-%m-%Y %H:%M",timeinfo);
+  std::string str(buffer);
+  std::string str_error;
+  std::string str_vc;
+  str_error = str+"-error.dat";
+  str_vc=str+"-velocity.dat";
+  plotter->saveData(0, str_error);
+  plotter->saveData(1, str_vc);
+}
+
 int
 main( int argc, char **argv )
 {
@@ -300,8 +317,6 @@ main( int argc, char **argv )
     task.setLambda( 0.5 );
 
     signal( SIGINT, my_function );
-
-    vpPlot *plotter = nullptr;
     int iter_plot   = 0;
 
     plotter = new vpPlot( 2, static_cast< int >( 250 * 2 ), 500, static_cast< int >( 0 ) + 80, 10,
@@ -617,9 +632,9 @@ main( int argc, char **argv )
       }
 
       ros::spinOnce();
-      loop_rate.sleep();
-
     } // while(1)
+
+    outputDataFiles();
 
     if ( plotter != nullptr )
     {
@@ -633,6 +648,7 @@ main( int argc, char **argv )
     cout << "ViSP exception: " << e.what() << endl;
     cout << "Stop the robot " << endl;
     robot.setRobotState( vpRobot::STATE_STOP );
+    outputDataFiles();
     return EXIT_FAILURE;
   }
   catch ( const franka::NetworkException &e )
@@ -640,13 +656,17 @@ main( int argc, char **argv )
     cout << "Franka network exception: " << e.what() << endl;
     cout << "Check if you are connected to the Franka robot"
          << " or if you specified the right IP using --ip command line option set by default to 192.168.1.1. " << endl;
+    outputDataFiles();
     return EXIT_FAILURE;
   }
   catch ( const std::exception &e )
   {
     cout << "Franka exception: " << e.what() << endl;
+    outputDataFiles();
     return EXIT_FAILURE;
   }
+
+  outputDataFiles();
 
   return 0;
 }
