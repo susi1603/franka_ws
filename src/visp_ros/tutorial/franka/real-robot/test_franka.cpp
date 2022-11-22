@@ -279,36 +279,6 @@ setFromConfigFile()
   }
 
   in.close();
-
-  // Log the loaded configuration
-  cout << "eedMo translation (x,y,z) and quartenion rotation (x,y,z,w):" << endl;
-  cout << eedmo_t_x << endl;
-  cout << eedmo_t_y << endl;
-  cout << eedmo_t_z << endl;
-  cout << eedmo_r_x << endl;
-  cout << eedmo_r_y << endl;
-  cout << eedmo_r_z << endl;
-  cout << eedmo_r_w << endl;
-
-  cout << "wMl_zero translation (x,y,z) and quartenion rotation (x,y,z,w):" << endl;
-  cout << wMl_zero_t_x << endl;
-  cout << wMl_zero_t_y << endl;
-  cout << wMl_zero_t_z << endl;
-  cout << wMl_zero_r_x << endl;
-  cout << wMl_zero_r_y << endl;
-  cout << wMl_zero_r_z << endl;
-  cout << wMl_zero_r_w << endl;
-
-  cout << "starting position end-effector with respect to world frame translation (x,y,z): " << endl;
-  cout << wmee_ini_x << endl;
-  cout << wmee_ini_y << endl;
-  cout << wmee_ini_z << endl;
-
-  cout << "distances constraints along z: " << endl;
-  // cout << t_constraint_x << endl;
-  // cout << t_constraint_y << endl;
-  cout << t_constraint_z_up << endl;
-  cout << t_constraint_z_down << endl;
 }
 
 void
@@ -481,22 +451,17 @@ main( int argc, char **argv )
       // rotation next wrt world
       vpHomogeneousMatrix eeMee_next( vpTranslationVector( nt_x, nt_y, nt_z ), vpThetaUVector( nr_x, nr_y, nr_z ) );
       vpHomogeneousMatrix wMee_next = wMee * eeMee_next;
+      // double r,y,p;
+      // double yaw_object,pitch_object,roll_object;
 
-      tf::StampedTransform wMo;
-      listener.lookupTransform( "/world", "/object", ros::Time( 0 ), wMo );
+      tf::Quaternion q_tf(x_or, y_or, z_or, w_or);
+      tfScalar yaw, pitch, roll;
+      tf::Matrix3x3 mat(q_tf);
+      mat.getEulerYPR(yaw,pitch,roll);
+      cout << "euler angles r " << fabs( wMoo_ini_r - roll) << endl;
+      cout << "euler angles p " << fabs( wMoo_ini_p - pitch) << endl;
+      cout << "euler angles y"  << fabs( wMoo_ini_y - yaw) << endl;
 
-      double r,y,p;
-      double yaw_object,pitch_object,roll_object;
-      geometry_msgs::Quaternion q_object = wMo.transform.rotation;
-      tf::Quaternion tfq;
-      tf::quaternionMsgToTF(q_object, tfq);
-      tf::Matrix3x3(tfq).getEulerYPR(y,p,r);
-      yaw_object = angles::to_degrees(y);
-      pitch_object = angles::to_degrees(p);
-      roll_object = angles::to_degrees(r);
-      cout << "roll in degrees current - ini " << (roll_object-wMoo_ini_r) << endl;
-      cout << "pitch in degrees current - ini " << (pitch_object -wMoo_ini_p)<< endl;
-      cout << "yaw in degrees  current - ini " << (yaw_object-wMoo_ini_y)<< endl;
 
       if (  
           x_backward <= next_world[0] && next_world[0] <= x_forward 
@@ -507,7 +472,6 @@ main( int argc, char **argv )
           &&!( isnan( v_c[4] ) ) && !( isnan( v_c[5] ) )
           && isARTNormalized() 
           && !(has_converged)
-          && roll_object-wMoo_ini_r <= -10.00 && 10.00 <= roll_object-wMoo_ini_r
           )
       {
         // here set velocity
@@ -583,8 +547,8 @@ main( int argc, char **argv )
         has_converged = false; 
       }
 
-      cout << "error t " << error_tr << endl;
-      cout << "error_tu " << error_tu << endl;
+      // cout << "error t " << error_tr << endl;
+      // cout << "error_tu " << error_tu << endl;
 
       if ( flag )
       {

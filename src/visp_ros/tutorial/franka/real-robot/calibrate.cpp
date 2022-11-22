@@ -140,27 +140,22 @@ setToConfigFile()
       out << param << " " << value << endl;
     }
 
-    double r,y,p;
-    double yaw_object,pitch_object,roll_object;
-    geometry_msgs::Quaternion q_object = wMo.transform.rotation;
-    tf::Quaternion tfq;
-    tf::quaternionMsgToTF(q_object, tfq);
-    tf::Matrix3x3(tfq).getEulerYPR(y,p,r);
-    yaw_object = angles::to_degrees(y);
-    pitch_object = angles::to_degrees(p);
-    roll_object = angles::to_degrees(r);
+    tf::Quaternion q_tf(wMo.getRotation().getX(), wMo.getRotation().getY(), wMo.getRotation().getZ(), wMo.getRotation().getW());
+    tfScalar yaw_tf, pitch_tf, roll_tf;
+    tf::Matrix3x3 mat(q_tf);
+    mat.getEulerYPR(yaw_tf,pitch_tf,roll_tf);
 
     if ( param == "WMO_R" )
     {
-      out << param << " " << roll_object << endl;
+      out << param << " " << roll_tf << endl;
     }
     if ( param == "WMO_P" )
     {
-      out << param << " " << pitch_object << endl;
+      out << param << " " << pitch_tf << endl;
     }
     if ( param == "WMO_Y" )
     {
-      out << param << " " << yaw_object;
+      out << param << " " << yaw_tf;
     }
 
   }
