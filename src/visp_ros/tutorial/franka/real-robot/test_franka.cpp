@@ -507,6 +507,7 @@ main( int argc, char **argv )
           &&!( isnan( v_c[4] ) ) && !( isnan( v_c[5] ) )
           && isARTNormalized() 
           && !(has_converged)
+          && roll_object-wMoo_ini_r <= -10.00 && 10.00 <= roll_object-wMoo_ini_r
           )
       {
         // here set velocity
