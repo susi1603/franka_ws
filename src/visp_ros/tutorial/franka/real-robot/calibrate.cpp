@@ -144,7 +144,7 @@ setToConfigFile()
     tfScalar yaw_tf, pitch_tf, roll_tf;
     tf::Matrix3x3 mat(q_tf);
     mat.getEulerYPR(yaw_tf,pitch_tf,roll_tf);
-
+    
     if ( param == "WMO_R" )
     {
       out << param << " " << roll_tf << endl;
@@ -157,7 +157,6 @@ setToConfigFile()
     {
       out << param << " " << yaw_tf;
     }
-
   }
   in.close();
   out.close();

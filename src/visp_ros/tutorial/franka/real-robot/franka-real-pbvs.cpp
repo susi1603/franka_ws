@@ -28,7 +28,7 @@ double z_or;
 double w_or;
 bool has_converged             = false;
 bool stop_program              = false;
-double convergence_threshold_t = 0.1, convergence_threshold_tu = 2.0;
+double convergence_threshold_t = 0.05, convergence_threshold_tu = 2.0;
 
 double eedmo_t_x;
 double eedmo_t_y;
@@ -383,8 +383,9 @@ main( int argc, char **argv )
       float z_up       = wmee_ini_z + t_constraint_z_up;
       float z_down     = wmee_ini_z - t_constraint_z_down;
 
-      z_up    = clip( z_up, 0.0, 0.58 );
-      y_left  = clip( y_left, 0.0, 0.50 );
+      // z_up    = clip( z_up, 0.0, 0.58 );
+      y_left  = clip( y_left, 0.0, 0.53 );
+      // z_down  = clip( z_down, 0.0, 0.37);
 
       vpColVector np_ee( 4 );
       np_ee[0] = nt_x;
@@ -515,7 +516,7 @@ main( int argc, char **argv )
         v_c[0] = clip( v_c[0], -0.1, 0.1 );
         v_c[1] = clip( v_c[1], -0.1, 0.1 );
         v_c[2] = clip( v_c[2], -0.1, 0.1 );
-        v_c[3] = clip( v_c[3], -0.1, 0.1 );
+        v_c[3] = clip( v_c[3], -0.0, 0.0 );
         v_c[4] = clip( v_c[4], -0.1, 0.1 );
         v_c[5] = clip( v_c[5], -0.1, 0.1 );
 
@@ -632,10 +633,10 @@ main( int argc, char **argv )
       }
 
       ros::spinOnce();
+      loop_rate.sleep();
     } // while(1)
 
     outputDataFiles();
-
     if ( plotter != nullptr )
     {
       delete plotter;

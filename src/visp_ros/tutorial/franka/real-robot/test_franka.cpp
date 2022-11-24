@@ -101,9 +101,7 @@
 #include <visp3/vs/vpServo.h>
 #include <visp3/gui/vpDisplayOpenCV.h>
 #include <visp3/gui/vpPlot.h>
-
 #include <tf/transform_listener.h>
-#include <time.h>
 
 #define CONFIG_FILE_PATH "./src/visp_ros/tutorial/franka/real-robot/config/configFile.config"
 art_publisher::body local_pos;
@@ -266,21 +264,52 @@ setFromConfigFile()
     {
       t_constraint_z_down = value;
     }
+
     if ( param == "WMO_R" )
     {
-      wMoo_ini_r = value ;
+      wMoo_ini_r = value;
     }
     if ( param == "WMO_P" )
     {
-      wMoo_ini_p = value ;
+       wMoo_ini_p = value;
     }
     if ( param == "WMO_Y" )
     {
-      wMoo_ini_y = value ;
+       wMoo_ini_y = value;
     }
   }
 
   in.close();
+
+  // Log the loaded configuration
+  cout << "eedMo translation (x,y,z) and quartenion rotation (x,y,z,w):" << endl;
+  cout << eedmo_t_x << endl;
+  cout << eedmo_t_y << endl;
+  cout << eedmo_t_z << endl;
+  cout << eedmo_r_x << endl;
+  cout << eedmo_r_y << endl;
+  cout << eedmo_r_z << endl;
+  cout << eedmo_r_w << endl;
+
+  cout << "wMl_zero translation (x,y,z) and quartenion rotation (x,y,z,w):" << endl;
+  cout << wMl_zero_t_x << endl;
+  cout << wMl_zero_t_y << endl;
+  cout << wMl_zero_t_z << endl;
+  cout << wMl_zero_r_x << endl;
+  cout << wMl_zero_r_y << endl;
+  cout << wMl_zero_r_z << endl;
+  cout << wMl_zero_r_w << endl;
+
+  cout << "starting position end-effector with respect to world frame translation (x,y,z): " << endl;
+  cout << wmee_ini_x << endl;
+  cout << wmee_ini_y << endl;
+  cout << wmee_ini_z << endl;
+
+  cout << "distances constraints along z: " << endl;
+  // cout << t_constraint_x << endl;
+  // cout << t_constraint_y << endl;
+  cout << t_constraint_z_up << endl;
+  cout << t_constraint_z_down << endl;
 }
 
 void
@@ -349,8 +378,8 @@ main( int argc, char **argv )
     ros::init( argc, argv, "control_node" );
     ros::NodeHandle n;
     ros::Subscriber sub = n.subscribe( "ARTBody", 1000, artCallback );
-    tf::TransformListener listener;
     ros::Rate loop_rate( 10 );
+    tf::TransformListener listener;
     robot.connect( "172.16.0.2" );
     cout << "Connected " << endl;
     setFromConfigFile();
@@ -392,7 +421,7 @@ main( int argc, char **argv )
     vpFeatureThetaU tud( vpFeatureThetaU::cdRc );
     task.addFeature( t, td );
     task.addFeature( tu, tud );
-    task.setLambda( 0.5 );
+    task.setLambda( 0.65 );
 
     signal( SIGINT, my_function );
     int iter_plot   = 0;
@@ -448,12 +477,22 @@ main( int argc, char **argv )
       float nr_y = v_c[4] * dt;
       float nr_z = v_c[5] * dt;
 
+      // calibration matrices
+      // starting point ee wrt world = 0.4623542903, 0.136219078, 0.3078160891
+
+      // cout << "Ee rotation: "    << wMee.getRotationMatrix() << endl;
+      // cout << "Ee translation: " << wMee.getTranslationVector() << endl;
+
       float x_forward  = wmee_ini_x + t_constraint_x_forward;
       float x_backward = wmee_ini_x - t_constraint_x_backward;
       float y_left     = wmee_ini_y + t_constraint_y_left;
       float y_right    = wmee_ini_y - t_constraint_y_right;
       float z_up       = wmee_ini_z + t_constraint_z_up;
       float z_down     = wmee_ini_z - t_constraint_z_down;
+
+      z_up    = clip( z_up, 0.0, 0.58 );
+      y_left  = clip( y_left, 0.0, 0.49 );
+      z_down = clip( z_down, 0.0, 0.37);
 
       vpColVector np_ee( 4 );
       np_ee[0] = nt_x;
@@ -467,16 +506,32 @@ main( int argc, char **argv )
       // rotation next wrt world
       vpHomogeneousMatrix eeMee_next( vpTranslationVector( nt_x, nt_y, nt_z ), vpThetaUVector( nr_x, nr_y, nr_z ) );
       vpHomogeneousMatrix wMee_next = wMee * eeMee_next;
-      // double r,y,p;
-      // double yaw_object,pitch_object,roll_object;
+
+      vpMatrix identityMatrix( 3, 3 );
+      identityMatrix.setIdentity( 1.0 );
+      vpMatrix rotMatrixnext = wMee_next.getRotationMatrix();
+      float thresholdXMax    = 9e-13;
+      float thresholdXMin    = 3e-12;
+      float thresholdYMax    = 5e-9;
+      float thresholdYMin    = 1e-13;
+      float thresholdZMax    = 3e-13;
+      float thresholdZMin    = 6e-13;
+
 
       tf::Quaternion q_tf(x_or, y_or, z_or, w_or);
-      tfScalar yaw, pitch, roll;
+      tfScalar yaw_tf, pitch_tf, roll_tf;
       tf::Matrix3x3 mat(q_tf);
-      mat.getEulerYPR(yaw,pitch,roll);
-      // cout << "euler angles r " << fabs( wMoo_ini_r - roll) << endl;
-      // cout << "euler angles p " << fabs( wMoo_ini_p - pitch) << endl;
-      // cout << "euler angles y"  << fabs( wMoo_ini_y - yaw) << endl;
+      mat.getEulerYPR(yaw_tf,pitch_tf,roll_tf);
+
+      vpHomogeneousMatrix wMo_ini( vpTranslationVector( x_pos, y_pos, z_pos ), vpQuaternionVector( x_or, y_or, z_or, w_or ) );
+
+      // cout << "init roll: " << wMoo_ini_r<<endl;
+      // cout << "current roll: "<< roll_tf<<endl;
+      // cout << "init pitch: " << wMoo_ini_p<<endl;
+      // cout << "current pitch: "<< pitch_tf<<endl;
+
+      // negative  is right and positive is left
+      //cout << "result pitch: " << fabs(vpMath::deg(wMoo_ini_p)-vpMath::deg(pitch_tf))<<endl;
 
       if (  
           x_backward <= next_world[0] && next_world[0] <= x_forward 
@@ -496,18 +551,18 @@ main( int argc, char **argv )
         v_c[3] = clip( v_c[3], -0.1, 0.1 );
         v_c[4] = clip( v_c[4], -0.1, 0.1 );
         v_c[5] = clip( v_c[5], -0.1, 0.1 );
-
-        // robot.setVelocity( vpRobot::END_EFFECTOR_FRAME, v_c );
-        // cout << "Robot moving v_c : " << v_c << endl;
+        robot.setVelocity( vpRobot::END_EFFECTOR_FRAME, v_c );
+        //cout << "Robot moving v_c : " << v_c << endl;
       }
       else
       {
-        cout << "Constraint violated " << endl;
+        // cout << "Constraint violated " << endl;
         // cout << "v_c" << v_c << endl;
         if ( !isARTNormalized() )
         {
           cout << "Constraint violated. Art out of range" << endl;
         }
+
         // translation constraints
         if ( next_world[0] < x_backward )
         {
@@ -538,9 +593,9 @@ main( int argc, char **argv )
         robot.setVelocity( vpRobot::END_EFFECTOR_FRAME, v_c );
       }
 
-      // cout << "print x  " << next_world[0] << endl;
-      // cout << "print y  " << next_world[1] << endl;
-      // cout << "print z  " << next_world[2] << endl;
+      cout << "print x  " << next_world[0] << endl;
+      cout << "print y  " << next_world[1] << endl;
+      cout << "print z  " << next_world[2] << endl;
 
       vpTranslationVector eed_t_ee = eedMee.getTranslationVector();
       vpThetaUVector eed_tu_ee     = eedMee.getThetaUVector();
@@ -557,7 +612,7 @@ main( int argc, char **argv )
       if ( error_tr < convergence_threshold_t && error_tu < convergence_threshold_tu )
       {
         has_converged = true;
-        cout << "Servo task has converged" << endl;
+        // cout << "Servo task has converged" << endl;
       } else {
         has_converged = false; 
       }
@@ -574,13 +629,11 @@ main( int argc, char **argv )
         robot.setRobotState( vpRobot::STATE_STOP );
         stop_program = true;
       }
-
+      
       ros::spinOnce();
       loop_rate.sleep();
     } // while(1)
-
     outputDataFiles();
-
     if ( plotter != nullptr )
     {
       delete plotter;
@@ -588,7 +641,6 @@ main( int argc, char **argv )
     }
 
   }
-
   catch ( const vpException &e )
   {
     cout << "ViSP exception: " << e.what() << endl;
@@ -611,6 +663,8 @@ main( int argc, char **argv )
     outputDataFiles();
     return EXIT_FAILURE;
   }
+
+  outputDataFiles();
 
   return 0;
 }
