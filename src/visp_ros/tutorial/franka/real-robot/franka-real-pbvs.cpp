@@ -384,7 +384,7 @@ main( int argc, char **argv )
       float z_down     = wmee_ini_z - t_constraint_z_down;
 
       // z_up    = clip( z_up, 0.0, 0.58 );
-      y_left  = clip( y_left, 0.0, 0.53 );
+      // y_left  = clip( y_left, 0.0, 0.56 );
       // z_down  = clip( z_down, 0.0, 0.37);
 
       vpColVector np_ee( 4 );

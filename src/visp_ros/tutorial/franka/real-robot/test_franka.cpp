@@ -145,9 +145,8 @@ double t_constraint_y_left;
 double t_constraint_y_right;
 double t_constraint_z_up;
 double t_constraint_z_down;
-double wMoo_ini_r;
-double wMoo_ini_p;
-double wMoo_ini_y;
+
+vpHomogeneousMatrix wMo_ini;
 vpPlot *plotter = nullptr;
 
 void
@@ -265,51 +264,48 @@ setFromConfigFile()
       t_constraint_z_down = value;
     }
 
-    if ( param == "WMO_R" )
+    double wMoo_ini_tx;
+    double wMoo_ini_ty;
+    double wMoo_ini_tz;
+    double wMoo_ini_rx;
+    double wMoo_ini_ry;
+    double wMoo_ini_rz;
+    double wMoo_ini_rw;
+
+    if ( param == "WMO_TX" )
     {
-      wMoo_ini_r = value;
+      wMoo_ini_tx = value;
     }
-    if ( param == "WMO_P" )
+    if ( param == "WMO_TY" )
     {
-       wMoo_ini_p = value;
+      wMoo_ini_ty = value;
     }
-    if ( param == "WMO_Y" )
+    if ( param == "WMO_TZ" )
     {
-       wMoo_ini_y = value;
+      wMoo_ini_tz = value;
     }
+    if ( param == "WMO_RX" )
+    {
+      wMoo_ini_rx = value;
+    }
+    if ( param == "WMO_RY" )
+    {
+      wMoo_ini_ry = value;
+    }
+    if ( param == "WMO_RZ" )
+    {
+      wMoo_ini_rz = value;
+    }
+
+    if ( param == "WMO_RW" )
+    {
+      wMoo_ini_rw = value;
+    }
+
+    wMo_ini.buildFrom( vpTranslationVector( wMoo_ini_tx, wMoo_ini_ty, wMoo_ini_tz ), vpQuaternionVector( wMoo_ini_rx, wMoo_ini_ry, wMoo_ini_rz, wMoo_ini_rw ) );
   }
 
   in.close();
-
-  // Log the loaded configuration
-  cout << "eedMo translation (x,y,z) and quartenion rotation (x,y,z,w):" << endl;
-  cout << eedmo_t_x << endl;
-  cout << eedmo_t_y << endl;
-  cout << eedmo_t_z << endl;
-  cout << eedmo_r_x << endl;
-  cout << eedmo_r_y << endl;
-  cout << eedmo_r_z << endl;
-  cout << eedmo_r_w << endl;
-
-  cout << "wMl_zero translation (x,y,z) and quartenion rotation (x,y,z,w):" << endl;
-  cout << wMl_zero_t_x << endl;
-  cout << wMl_zero_t_y << endl;
-  cout << wMl_zero_t_z << endl;
-  cout << wMl_zero_r_x << endl;
-  cout << wMl_zero_r_y << endl;
-  cout << wMl_zero_r_z << endl;
-  cout << wMl_zero_r_w << endl;
-
-  cout << "starting position end-effector with respect to world frame translation (x,y,z): " << endl;
-  cout << wmee_ini_x << endl;
-  cout << wmee_ini_y << endl;
-  cout << wmee_ini_z << endl;
-
-  cout << "distances constraints along z: " << endl;
-  // cout << t_constraint_x << endl;
-  // cout << t_constraint_y << endl;
-  cout << t_constraint_z_up << endl;
-  cout << t_constraint_z_down << endl;
 }
 
 void
@@ -522,10 +518,14 @@ main( int argc, char **argv )
       tfScalar yaw_tf, pitch_tf, roll_tf;
       tf::Matrix3x3 mat(q_tf);
       mat.getEulerYPR(yaw_tf,pitch_tf,roll_tf);
+      vpHomogeneousMatrix o_iniMo = wMo.inverse() * wMo_ini;
+      vpThetaUVector o_iniMo_tu = o_iniMo.getThetaUVector();
+      double error_tu_object = vpMath::deg( sqrt( o_iniMo_tu.sumSquare() ) );
 
-      vpHomogeneousMatrix wMo_ini( vpTranslationVector( x_pos, y_pos, z_pos ), vpQuaternionVector( x_or, y_or, z_or, w_or ) );
+      if (isARTNormalized()){
+        cout << "error tu object 0: " << vpMath::deg(o_iniMo_tu[0]) << " , " << vpMath::deg(o_iniMo_tu[1])<< " , " << vpMath::deg(o_iniMo_tu[2]) <<endl;
 
-      // cout << "init roll: " << wMoo_ini_r<<endl;
+      }
       // cout << "current roll: "<< roll_tf<<endl;
       // cout << "init pitch: " << wMoo_ini_p<<endl;
       // cout << "current pitch: "<< pitch_tf<<endl;
@@ -551,7 +551,7 @@ main( int argc, char **argv )
         v_c[3] = clip( v_c[3], -0.1, 0.1 );
         v_c[4] = clip( v_c[4], -0.1, 0.1 );
         v_c[5] = clip( v_c[5], -0.1, 0.1 );
-        robot.setVelocity( vpRobot::END_EFFECTOR_FRAME, v_c );
+        //robot.setVelocity( vpRobot::END_EFFECTOR_FRAME, v_c );
         //cout << "Robot moving v_c : " << v_c << endl;
       }
       else
@@ -588,14 +588,18 @@ main( int argc, char **argv )
         {
           cout << "Z up violated: translation z" << next_world[2] << endl;
         }
+        if(has_converged)
+        {
+          cout << "Servo task has converged" << endl;
+        }
 
         v_c = 0;
         robot.setVelocity( vpRobot::END_EFFECTOR_FRAME, v_c );
       }
 
-      cout << "print x  " << next_world[0] << endl;
-      cout << "print y  " << next_world[1] << endl;
-      cout << "print z  " << next_world[2] << endl;
+      // cout << "print x  " << next_world[0] << endl;
+      // cout << "print y  " << next_world[1] << endl;
+      // cout << "print z  " << next_world[2] << endl;
 
       vpTranslationVector eed_t_ee = eedMee.getTranslationVector();
       vpThetaUVector eed_tu_ee     = eedMee.getThetaUVector();
@@ -612,13 +616,9 @@ main( int argc, char **argv )
       if ( error_tr < convergence_threshold_t && error_tu < convergence_threshold_tu )
       {
         has_converged = true;
-        // cout << "Servo task has converged" << endl;
       } else {
         has_converged = false; 
       }
-
-      // cout << "error t " << error_tr << endl;
-      // cout << "error_tu " << error_tu << endl;
 
       if ( flag )
       {

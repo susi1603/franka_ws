@@ -144,18 +144,35 @@ setToConfigFile()
     tfScalar yaw_tf, pitch_tf, roll_tf;
     tf::Matrix3x3 mat(q_tf);
     mat.getEulerYPR(yaw_tf,pitch_tf,roll_tf);
-    
-    if ( param == "WMO_R" )
+
+    if ( param == "WMO_TX" )
     {
-      out << param << " " << roll_tf << endl;
+      out << param << " " << wMo.getOrigin().x() << endl;
     }
-    if ( param == "WMO_P" )
+    if ( param == "WMO_TY" )
     {
-      out << param << " " << pitch_tf << endl;
+      out << param << " " << wMo.getOrigin().y() << endl;
     }
-    if ( param == "WMO_Y" )
+    if ( param == "WMO_TZ" )
     {
-      out << param << " " << yaw_tf;
+      out << param << " " << wMo.getOrigin().z() << endl;
+    }
+    if ( param == "WMO_RX" )
+    {
+      out << param << " " << wMo.getRotation().getX() << endl;
+    }
+    if ( param == "WMO_RY" )
+    {
+      out << param << " " << wMo.getRotation().getY() << endl;
+    }
+    if ( param == "WMO_RZ" )
+    {
+      out << param << " " << wMo.getRotation().getZ()<<endl;
+    }
+
+    if ( param == "WMO_RW" )
+    {
+      out << param << " " << wMo.getRotation().getW();
     }
   }
   in.close();
