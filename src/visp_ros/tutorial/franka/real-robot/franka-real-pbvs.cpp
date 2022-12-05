@@ -384,7 +384,7 @@ main( int argc, char **argv )
       float z_down     = wmee_ini_z - t_constraint_z_down;
 
       // z_up    = clip( z_up, 0.0, 0.58 );
-      // y_left  = clip( y_left, 0.0, 0.56 );
+      // y_left  = clip( y_left, 0.0, 0.55 );
       // z_down  = clip( z_down, 0.0, 0.37);
 
       vpColVector np_ee( 4 );
@@ -646,24 +646,24 @@ main( int argc, char **argv )
   }
   catch ( const vpException &e )
   {
+    outputDataFiles();
     cout << "ViSP exception: " << e.what() << endl;
     cout << "Stop the robot " << endl;
     robot.setRobotState( vpRobot::STATE_STOP );
-    outputDataFiles();
     return EXIT_FAILURE;
   }
   catch ( const franka::NetworkException &e )
   {
+    outputDataFiles();
     cout << "Franka network exception: " << e.what() << endl;
     cout << "Check if you are connected to the Franka robot"
          << " or if you specified the right IP using --ip command line option set by default to 192.168.1.1. " << endl;
-    outputDataFiles();
     return EXIT_FAILURE;
   }
   catch ( const std::exception &e )
   {
-    cout << "Franka exception: " << e.what() << endl;
     outputDataFiles();
+    cout << "Franka exception: " << e.what() << endl;
     return EXIT_FAILURE;
   }
 
